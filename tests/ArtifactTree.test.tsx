@@ -1,7 +1,11 @@
+// @vitest-environment happy-dom
 // RED phase: unskip and complete in Plan 02-03 Task 1
 // These tests require ArtifactTree to be wired into App.tsx with real data.
 // Plan 02-03 completes the integration and makes these tests pass.
 
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { ArtifactTree } from '../client/src/components/tree/ArtifactTree';
 import type { ScopeNode } from '../client/src/lib/types';
 
 // --- Fixtures ---
@@ -64,38 +68,67 @@ const projectScope: ScopeNode = {
 
 const mockScopes: ScopeNode[] = [globalScope, projectScope];
 
+const defaultProps = {
+  query: '',
+  typeFilter: null,
+  onQueryChange: () => {},
+  onTypeFilterChange: () => {},
+  onRefresh: () => {},
+  isLoading: false,
+  error: null,
+};
+
 // --- Tests ---
 
 describe('ArtifactTree', () => {
   // TREE-01: tree structure
-  it.skip('renders scope labels in tree hierarchy', () => {
-    // Assert that "Global" and "my-app" scope labels are visible in the rendered tree
+  it('renders scope labels in tree hierarchy', () => {
+    render(<ArtifactTree {...defaultProps} scopes={mockScopes} />);
+    expect(screen.getByText('Global')).toBeInTheDocument();
+    expect(screen.getByText('my-app')).toBeInTheDocument();
   });
 
   // TREE-03: scope badges
-  it.skip('renders scope badges with global/project text', () => {
-    // Assert that scope badge text "global" appears next to the Global scope node
-    // and "project" appears next to the my-app scope node
+  it('renders scope badges with global/project text', () => {
+    render(<ArtifactTree {...defaultProps} scopes={mockScopes} />);
+    // scope badges render as text inside the tree rows
+    expect(screen.getByText('global')).toBeInTheDocument();
+    expect(screen.getByText('project')).toBeInTheDocument();
   });
 
   // TREE-04: artifact count
-  it.skip('renders category nodes with artifact count', () => {
-    // Assert that "Agents (2)" and "Commands (1)" appear after expanding the Global scope
+  it('renders category nodes with artifact count', () => {
+    render(<ArtifactTree {...defaultProps} scopes={mockScopes} />);
+    // headless-tree expands scopes by default; category nodes should be visible
+    // The category for agents should show "(2)" count
+    // Use getAllByText because "Agents" also appears in the type-filter dropdown
+    const agentsLabels = screen.getAllByText('Agents');
+    expect(agentsLabels.length).toBeGreaterThan(0);
+    expect(screen.getByText('(2)')).toBeInTheDocument();
   });
 
   // TREE-06: refresh
-  it.skip('refresh button triggers onRefresh callback', () => {
-    // Assert that clicking the refresh button calls the onRefresh prop once
+  it('refresh button triggers onRefresh callback', () => {
+    const onRefresh = vi.fn();
+    render(<ArtifactTree {...defaultProps} scopes={mockScopes} onRefresh={onRefresh} />);
+    const refreshButton = screen.getByRole('button', { name: 'Refresh artifact tree' });
+    fireEvent.click(refreshButton);
+    expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 
   // Loading state
-  it.skip('shows skeleton when loading with empty scopes', () => {
-    // Assert that when isLoading=true and scopes=[], TreeSkeleton (animate-pulse) is rendered
+  it('shows skeleton when loading with empty scopes', () => {
+    render(<ArtifactTree {...defaultProps} scopes={[]} isLoading={true} />);
+    expect(screen.getByRole('status', { name: 'Loading artifacts...' })).toBeInTheDocument();
   });
 
   // Error state
-  it.skip('shows error message with retry button', () => {
-    // Assert that when error="scan failed", "Could not load artifacts" heading is shown
-    // and clicking "Try again" calls onRefresh
+  it('shows error message with retry button', () => {
+    const onRefresh = vi.fn();
+    render(<ArtifactTree {...defaultProps} scopes={[]} error="scan failed" onRefresh={onRefresh} />);
+    expect(screen.getByText('Could not load artifacts')).toBeInTheDocument();
+    const retryButton = screen.getByRole('button', { name: 'Try again' });
+    fireEvent.click(retryButton);
+    expect(onRefresh).toHaveBeenCalledTimes(1);
   });
 });

@@ -212,7 +212,7 @@ export function ArtifactTree({
         >
           {tree.getItems().map((item) => (
             <div
-              key={item.getItemId()}
+              key={item.getId()}
               style={{ paddingLeft: item.getItemMeta().level * 16 }}
               {...item.getProps()}
             >
