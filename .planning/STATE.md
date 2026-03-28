@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-foundation-01-PLAN.md
-last_updated: "2026-03-28T15:25:23.045Z"
+stopped_at: Completed 01-foundation-02-PLAN.md
+last_updated: "2026-03-28T20:32:00.000Z"
 progress:
   total_phases: 3
   completed_phases: 0
   total_plans: 3
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-28)
 ## Current Position
 
 Phase: 01 (foundation) — EXECUTING
-Plan: 1 of 3
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -61,6 +61,8 @@ Recent decisions affecting current work:
 - Artifact type registry must exist before copy/move is implemented (Phase 1 → Phase 3 dependency)
 - [Phase 01-foundation]: Zod v4 recursive schema requires explicit ZodType<T> annotation; z.lazy() alone is insufficient
 - [Phase 01-foundation]: Two separate tsup configs: cli entry gets shebang banner, server entry does not
+- [Phase 01-foundation Plan 02]: Plugin artifact name uses parent directory name (e.g., test-plugin), not filename (plugin)
+- [Phase 01-foundation Plan 02]: configFile optional param pattern used for config functions to enable test isolation
 
 ### Pending Todos
 
@@ -73,6 +75,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T15:25:23.043Z
-Stopped at: Completed 01-foundation-01-PLAN.md
+Last session: 2026-03-28T20:32:00.000Z
+Stopped at: Completed 01-foundation-02-PLAN.md
 Resume file: None

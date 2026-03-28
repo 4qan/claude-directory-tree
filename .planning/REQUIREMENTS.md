@@ -14,10 +14,10 @@
 
 ### Scanning
 
-- [ ] **SCAN-01**: User can point the app at a parent directory to auto-discover all projects containing `.claude/` folders
-- [ ] **SCAN-02**: User can manually register additional project paths
-- [ ] **SCAN-03**: Scanner detects all Claude artifact types: skills, agents, commands, plugins, hooks, CLAUDE.md, MCP servers, memory files, plan files, channels
-- [ ] **SCAN-04**: Scanner distinguishes global scope (`~/.claude/`) from project scope (`.claude/`)
+- [x] **SCAN-01**: User can point the app at a parent directory to auto-discover all projects containing `.claude/` folders
+- [x] **SCAN-02**: User can manually register additional project paths
+- [x] **SCAN-03**: Scanner detects all Claude artifact types: skills, agents, commands, plugins, hooks, CLAUDE.md, MCP servers, memory files, plan files, channels
+- [x] **SCAN-04**: Scanner distinguishes global scope (`~/.claude/`) from project scope (`.claude/`)
 
 ### Tree View
 
@@ -85,10 +85,10 @@
 | INFRA-02 | Phase 1 | Pending |
 | INFRA-03 | Phase 1 | Pending |
 | INFRA-04 | Phase 1 | Complete |
-| SCAN-01 | Phase 1 | Pending |
-| SCAN-02 | Phase 1 | Pending |
-| SCAN-03 | Phase 1 | Pending |
-| SCAN-04 | Phase 1 | Pending |
+| SCAN-01 | Phase 1 | Complete |
+| SCAN-02 | Phase 1 | Complete |
+| SCAN-03 | Phase 1 | Complete |
+| SCAN-04 | Phase 1 | Complete |
 | TREE-01 | Phase 2 | Pending |
 | TREE-02 | Phase 2 | Pending |
 | TREE-03 | Phase 2 | Pending |
