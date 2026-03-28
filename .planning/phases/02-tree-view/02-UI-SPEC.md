@@ -52,12 +52,11 @@ Three sizes, two weights. System font stack, no custom font loaded.
 
 | Role | Size | Weight | Line Height | Tailwind classes | Usage |
 |------|------|--------|-------------|-----------------|-------|
-| Body | 14px | 400 (regular) | 1.5 | `text-sm font-normal leading-normal` | Artifact labels, scope badge text, toolbar input |
-| Label | 13px | 500 (medium) | 1.4 | `text-[13px] font-medium leading-[1.4]` | Category node labels (e.g. "Agents (3)"), toolbar filter label |
-| Heading | 20px | 600 (semibold) | 1.2 | `text-xl font-semibold leading-tight` | App header "Claude Directory Tree" (existing); scope node label |
+| Body | 14px | 400 (regular) | 1.5 | `text-sm font-normal leading-normal` | Artifact labels, scope badge text, toolbar input, category node labels |
+| Heading | 20px | 600 (semibold) | 1.2 | `text-xl font-semibold leading-tight` | App header "Claude Directory Tree" (existing); category labels (e.g. "Agents (3)"); scope node label |
 | Display | — | — | — | Not used in this phase | — |
 
-Font size note: 14px body keeps visual parity with VS Code file explorer. 13px for category nodes is intentionally one step smaller to visually subordinate them.
+Font weight note: 400 (regular) for all body text and artifact labels. 600 (semibold) for category labels and the app header — two weights only.
 
 ---
 
@@ -88,7 +87,7 @@ Components needed for this phase, using shadcn where available:
 
 | Component | Source | Notes |
 |-----------|--------|-------|
-| Button | `@/components/ui/button` (installed) | Refresh button in toolbar; "Clear filters" link-style button |
+| Button | `@/components/ui/button` (installed) | Refresh Tree button in toolbar; "Clear filters" link-style button |
 | Input | shadcn — needs `npx shadcn add input` | Search input in toolbar |
 | Select | shadcn — needs `npx shadcn add select` | Type filter dropdown (preferred over native select for visual consistency per RESEARCH.md) |
 | ArtifactTree | `client/src/components/tree/ArtifactTree.tsx` (new) | Root tree container, useTree hook |
@@ -156,7 +155,7 @@ The tree view replaces the current placeholder Card in `App.tsx`. New layout:
 Tree row layout per item:
 - Row: `flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default hover:bg-muted`
 - Icon: 16px, `text-muted-foreground` for category/scope chevrons; `text-foreground` for artifact type icons
-- Label: `text-sm` for artifacts; `text-[13px] font-medium` for categories
+- Label: `text-sm` for artifacts; `text-sm font-semibold` for categories
 - Badge: `text-xs text-muted-foreground` inline after scope name — "(global)" / "(project)"
 - Count: `text-xs text-muted-foreground` inline after category name — "(3)"
 
@@ -190,7 +189,7 @@ Tree row layout per item:
 ### No-match State
 - Shown when `deriveVisibleTree` returns empty array with active filters
 - Inline, centered in tree panel
-- Copy: "No artifacts matching [query]" — see Copywriting Contract below
+- Copy: see Copywriting Contract below
 
 ### Loading State
 - TreeSkeleton with `animate-pulse`: 3 scope rows, each with 2 category placeholder bars
@@ -203,14 +202,17 @@ Tree row layout per item:
 | Element | Copy | Source |
 |---------|------|--------|
 | App header | "Claude Directory Tree" | Existing App.tsx (unchanged) |
-| Primary CTA (refresh) | "Refresh" | CONTEXT.md: user-initiated rescan |
+| Primary CTA (refresh) | "Refresh Tree" | CONTEXT.md: user-initiated rescan |
 | Search placeholder | "Search artifacts..." | Standard pattern for filter inputs |
 | Type filter default | "All types" | Communicates "no filter active" |
 | Empty tree heading | "No Claude artifacts found" | CONTEXT.md: empty tree state |
 | Empty tree body | "No Claude artifacts found in [directory]. Check your scan path or add projects manually." | CONTEXT.md: includes hint about scan path |
-| No-match heading | "No results" | Minimal; filter state is self-evident from toolbar |
+| No-match heading | "No matching artifacts" | Reflects filter context specifically |
 | No-match body | "No artifacts matching your filters." | CONTEXT.md: inline message |
 | No-match action | "Clear filters" | CONTEXT.md: direct recovery action |
+| API error heading | "Could not load artifacts" | Error state for GET /api/scan failure |
+| API error body | "Failed to scan directory. Check that the path exists and try again." | Describes problem and next step |
+| API error action | "Try again" | Re-triggers refresh |
 | Refresh button aria-label | "Refresh artifact tree" | Accessibility: icon-only button needs label |
 | Loading state (screen reader) | aria-live region: "Loading artifacts..." | Accessibility requirement |
 | Scope badge (global) | "global" | CONTEXT.md: muted text label |
