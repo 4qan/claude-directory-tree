@@ -7,8 +7,9 @@ import { TreeSkeleton } from '@/components/tree/TreeSkeleton';
 import { TreeToolbar } from '@/components/tree/TreeToolbar';
 import { TYPE_LABELS } from '@/components/tree/iconMap';
 import { deriveVisibleTree } from '@/lib/deriveVisibleTree';
-import { openInEditor } from '@/lib/operationsApi';
+import { openInEditor, copyArtifact, TYPE_DIR_MAP } from '@/lib/operationsApi';
 import { ContextMenu } from '@/components/ContextMenu';
+import { showToast } from '@/components/Toast';
 import type { ArtifactType, ScopeNode, Artifact } from '@/lib/types';
 import type { TreeNodeData } from '@/components/tree/TreeItem';
 
@@ -103,6 +104,49 @@ function indexArtifact(
   }
 }
 
+function findScopeForItem(
+  itemId: string | null,
+  items: Record<string, TreeNodeData>,
+  children: Record<string, string[]>,
+  scopes: ScopeNode[]
+): ScopeNode | null {
+  if (!itemId) return null;
+  const data = items[itemId];
+  if (!data) return null;
+  if (data.nodeKind === 'scope') return data as ScopeNode;
+  if (data.nodeKind === 'category') {
+    const scopeId = data.id.split(':')[0];
+    const scopeData = items[scopeId];
+    return scopeData?.nodeKind === 'scope' ? (scopeData as ScopeNode) : null;
+  }
+  // Leaf node: first try matching via scope artifacts
+  for (const scope of scopes) {
+    if (scope.artifacts.some((a: Artifact) => a.id === itemId || a.children?.some((c: Artifact) => c.id === itemId))) {
+      const scopeData = items[scope.id];
+      return scopeData?.nodeKind === 'scope' ? (scopeData as ScopeNode) : null;
+    }
+  }
+  // Fallback for deeply nested leaves: use the data.scope field directly
+  // to find the matching ScopeNode from the scopes array
+  if (data.nodeKind === 'leaf' && 'scope' in data && 'projectId' in data) {
+    const leafData = data as Artifact & { nodeKind: 'leaf' };
+    // Match by projectId first (more specific), then by scope
+    const match = scopes.find(s =>
+      (leafData.projectId && s.id === leafData.projectId) ||
+      (leafData.projectId && s.label === leafData.projectId)
+    );
+    if (match) {
+      const scopeData = items[match.id];
+      return scopeData?.nodeKind === 'scope' ? (scopeData as ScopeNode) : match;
+    }
+    // Last resort: if scope is 'global', find the global scope node
+    if (leafData.scope === 'global') {
+      return scopes.find(s => s.scope === 'global') ?? null;
+    }
+  }
+  return null;
+}
+
 export function ArtifactTree({
   scopes,
   query,
@@ -127,6 +171,14 @@ export function ArtifactTree({
   // Selection state
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [focusedId, setFocusedId] = useState<string | null>(null);
+
+  // Clipboard state
+  const [clipboardArtifact, setClipboardArtifact] = useState<(Artifact & { nodeKind: 'leaf' }) | null>(null);
+
+  // Refs for focus management
+  const treeContainerRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const typeFilterRef = useRef<HTMLSelectElement>(null);
 
   // Derive selected artifact from selection state
   const selectedArtifact = useMemo((): Artifact | null => {
@@ -158,6 +210,13 @@ export function ArtifactTree({
       data,
     });
   }, []);
+
+  // Conflict state (for Cmd+V triggered copies)
+  const [conflictState, setConflictState] = useState<{
+    artifactName: string;
+    targetProject: string;
+    retryFn: () => Promise<void>;
+  } | null>(null);
 
   // Stable dataLoader reference to preserve expand state across filter updates.
   // Return a fallback for missing items to prevent crashes when filters change.
@@ -246,15 +305,110 @@ export function ArtifactTree({
     }
   }, []);
 
-  // Esc key: clear selection (hides detail panel)
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === 'Escape') {
-      setSelectedIds([]);
-    }
+  // Global Cmd+F handler: focuses search input from anywhere
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'f') {
+        e.preventDefault();
+        searchInputRef.current?.focus();
+      }
+    };
+    document.addEventListener('keydown', handleGlobalKeyDown);
+    return () => document.removeEventListener('keydown', handleGlobalKeyDown);
   }, []);
 
+  // Tree container keyboard handler: merges with headless-tree's getContainerProps().onKeyDown
+  const containerProps = tree.getContainerProps();
+
+  const handleTreeKeyDown = useCallback((e: React.KeyboardEvent) => {
+    // Let headless-tree handle arrow keys, Enter, etc. first
+    containerProps.onKeyDown?.(e as any);
+
+    // Shift+F10 or ContextMenu key: open context menu on focused item
+    if ((e.key === 'F10' && e.shiftKey) || e.key === 'ContextMenu') {
+      e.preventDefault();
+      if (focusedId && items[focusedId]) {
+        const data = items[focusedId];
+        if (data.nodeKind !== 'root') {
+          const el = treeContainerRef.current?.querySelector(`[data-rct-item-id="${focusedId}"]`);
+          const rect = el?.getBoundingClientRect();
+          setContextMenu({
+            x: rect ? rect.left + 20 : 100,
+            y: rect ? rect.bottom : 100,
+            nodeKind: data.nodeKind as 'leaf' | 'scope' | 'category',
+            data,
+          });
+        }
+      }
+      return;
+    }
+
+    // Cmd+C: copy selected artifact to clipboard state
+    // Only intercept when tree container is active (Pitfall 6: don't block native copy outside tree)
+    if ((e.metaKey || e.ctrlKey) && e.key === 'c') {
+      if (!treeContainerRef.current?.contains(document.activeElement)) return;
+      if (selectedIds.length === 1) {
+        const data = items[selectedIds[0]];
+        if (data?.nodeKind === 'leaf') {
+          e.preventDefault();
+          setClipboardArtifact(data as Artifact & { nodeKind: 'leaf' });
+          showToast('Copied to clipboard', 'info', 2000);
+        }
+      }
+      return;
+    }
+
+    // Cmd+V: paste clipboard artifact into focused scope
+    if ((e.metaKey || e.ctrlKey) && e.key === 'v') {
+      if (!treeContainerRef.current?.contains(document.activeElement)) return;
+      if (!clipboardArtifact) return; // silent fail per UI-SPEC
+      e.preventDefault();
+
+      // Determine target: find the scope of the currently focused item
+      const targetScope = findScopeForItem(focusedId, items, children, scopes);
+      if (!targetScope || targetScope.scope === 'global') {
+        showToast('Select a project scope to paste into', 'error', 3000);
+        return;
+      }
+
+      // Build destination dir using TYPE_DIR_MAP from operationsApi
+      const typeDir = TYPE_DIR_MAP[clipboardArtifact.type] ?? '';
+      const destDir = targetScope.rootPath + (typeDir ? '/' + typeDir : '');
+
+      copyArtifact(clipboardArtifact.absolutePath, destDir, clipboardArtifact.type)
+        .then((result: { success: boolean; conflict?: boolean; warnings?: { type: string; message: string }[]; error?: string }) => {
+          if (result.conflict) {
+            setConflictState({
+              artifactName: clipboardArtifact.name,
+              targetProject: targetScope.label,
+              retryFn: async () => {
+                await copyArtifact(clipboardArtifact.absolutePath, destDir, clipboardArtifact.type, true);
+                showToast(`Copied ${clipboardArtifact.name} to ${targetScope.label}`, 'success');
+                onRefresh();
+              },
+            });
+          } else if (result.success) {
+            showToast(`Copied ${clipboardArtifact.name} to ${targetScope.label}`, 'success');
+            onRefresh();
+          } else if (result.error) {
+            showToast(`Failed to copy: ${result.error}`, 'error', 6000);
+          }
+        });
+      return;
+    }
+
+    // Esc: close context menu first, then clear selection
+    if (e.key === 'Escape') {
+      if (contextMenu) {
+        setContextMenu(null);
+      } else if (selectedIds.length > 0) {
+        setSelectedIds([]);
+      }
+    }
+  }, [containerProps, focusedId, selectedIds, items, children, scopes, clipboardArtifact, contextMenu, onRefresh]);
+
   return (
-    <div className="flex flex-col flex-1 min-h-0" onKeyDown={handleKeyDown}>
+    <div className="flex flex-col flex-1 min-h-0">
       <TreeToolbar
         query={query}
         typeFilter={typeFilter}
@@ -262,6 +416,9 @@ export function ArtifactTree({
         onTypeFilterChange={onTypeFilterChange}
         onRefresh={onRefresh}
         isLoading={isLoading}
+        searchInputRef={searchInputRef}
+        typeFilterRef={typeFilterRef}
+        treeContainerRef={treeContainerRef}
       />
 
       {/* Loading state (only when we have no data yet) */}
@@ -332,7 +489,9 @@ export function ArtifactTree({
 
         return (
           <div
-            {...tree.getContainerProps()}
+            ref={treeContainerRef}
+            {...containerProps}
+            onKeyDown={handleTreeKeyDown}
             className="flex-1 overflow-y-auto px-2 py-2 outline-none"
           >
             {treeItems.map((item) => {
@@ -391,6 +550,37 @@ export function ArtifactTree({
           onClose={() => setContextMenu(null)}
           onRefresh={onRefresh}
         />
+      )}
+      {/* Conflict dialog for Cmd+V paste operations */}
+      {conflictState && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-background rounded-lg border border-border shadow-xl p-6 max-w-sm w-full mx-4">
+            <h3 className="text-sm font-semibold mb-2">File already exists</h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              <strong>{conflictState.artifactName}</strong> already exists in{' '}
+              <strong>{conflictState.targetProject}</strong>.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setConflictState(null)}
+              >
+                Keep Original
+              </Button>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={async () => {
+                  setConflictState(null);
+                  await conflictState.retryFn();
+                }}
+              >
+                Replace File
+              </Button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
