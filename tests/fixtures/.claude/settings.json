@@ -1,0 +1,6 @@
+{
+  "hooks": [
+    { "name": "pre-commit", "command": "npm test" },
+    { "name": "post-push", "command": "echo done" }
+  ]
+}
