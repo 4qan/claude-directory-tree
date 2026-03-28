@@ -66,10 +66,10 @@ Plans:
 **Plans:** 4 plans
 
 Plans:
-- [ ] 03-01-PLAN.md — Server file operations API: open, copy, move, promote, demote, describe endpoints
-- [ ] 03-02-PLAN.md — Selection state, click/double-click handlers, ArtifactDetailPanel side panel
-- [ ] 03-03-PLAN.md — Context menu with flyout, conflict dialog, toast notifications, operation wiring
-- [ ] 03-04-PLAN.md — Keyboard navigation, clipboard shortcuts (Cmd+C/V), human verification
+- [ ] 03-01-PLAN.md — Shared type contracts, server operations API (open/copy/move/promote/demote/describe), pre-flight reference scanning, operations matrix enforcement
+- [ ] 03-02-PLAN.md — Client API layer, selection state, click/double-click handlers, detail panel, toast component, Copy Path utility
+- [ ] 03-03-PLAN.md — Context menu with flyout submenu, conflict dialog, Copy Path action, operation wiring to server API
+- [ ] 03-04-PLAN.md — Keyboard navigation (Cmd+C/V, Shift+F10, Cmd+F, Tab cycling), focus management, human verification
 
 ### Phase 4: Plugin Distribution
 **Goal**: Users can install once and launch with `/tree` in Claude Code or `npx claude-directory-tree` from any terminal
