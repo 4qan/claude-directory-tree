@@ -2,7 +2,7 @@
 
 ## Overview
 
-Three phases in dependency order: scaffold the working binary and scanner first, then deliver the read-only tree view that proves the core value, then layer in write operations and artifact summaries to complete v1. Each phase is independently shippable and verifiable.
+Four phases in dependency order: scaffold the working binary and scanner first, then deliver the read-only tree view that proves the core value, then layer in write operations and artifact summaries, then package as a Claude Code plugin and npm package for frictionless distribution.
 
 ## Phases
 
@@ -15,6 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Working npx binary, artifact scanner, and server with typed REST API (completed 2026-03-28)
 - [ ] **Phase 2: Tree View** - Read-only artifact tree with search, filter, refresh, and scope labels
 - [ ] **Phase 3: Operations** - File copy/move/promote/demote, context menu, keyboard nav, and artifact summaries
+- [ ] **Phase 4: Plugin Distribution** - Claude Code plugin (/tree command) and npm package for frictionless install
 
 ## Phase Details
 
@@ -45,7 +46,12 @@ Plans:
   3. User can type in a search box and the tree filters live to matching artifact names
   4. User can select a type filter (e.g. "agents") and see only that artifact type across all scopes
   5. User can click a refresh button and the tree updates to reflect file system changes
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 02-01-PLAN.md — Data layer: client types, iconMap, deriveVisibleTree filter function, test infrastructure
+- [ ] 02-02-PLAN.md — Tree UI components: ArtifactTree, TreeItem, TreeSkeleton, TreeToolbar with @headless-tree/react
+- [ ] 02-03-PLAN.md — App integration: wire ArtifactTree into App.tsx, component tests, visual verification
 
 ### Phase 3: Operations
 **Goal**: Users can open, copy, move, promote, and demote artifacts without leaving the app, and see a quick summary of what each artifact does
@@ -59,13 +65,24 @@ Plans:
   5. User can see a short summary of what each artifact does without opening the file
 **Plans**: TBD
 
+### Phase 4: Plugin Distribution
+**Goal**: Users can install once and launch with `/tree` in Claude Code or `npx claude-directory-tree` from any terminal
+**Depends on**: Phase 3
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+  1. `/tree` command in Claude Code starts the server and opens the browser
+  2. `npx claude-directory-tree` works from any directory without manual setup
+  3. Target directory defaults to project root (plugin) or cwd (standalone)
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3
+Phases execute in numeric order: 1 → 2 → 3 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-28 |
-| 2. Tree View | 0/? | Not started | - |
+| 2. Tree View | 0/3 | Planning complete | - |
 | 3. Operations | 0/? | Not started | - |
+| 4. Plugin Distribution | 0/? | Not started | - |
