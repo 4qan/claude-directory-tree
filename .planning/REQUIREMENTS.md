@@ -23,11 +23,11 @@
 
 - [x] **TREE-01**: User sees a hierarchical tree with expand/collapse showing all artifacts organized by scope (global vs project)
 - [x] **TREE-02**: Each artifact displays a type-specific icon and label
-- [x] **TREE-03**: Each scope node shows a badge indicating global or project-local
+- [x] **TREE-03**: Scopes are visually grouped by section (global, current project, other projects) with section headers
 - [x] **TREE-04**: Each scope/category node shows artifact count
 - [x] **TREE-05**: Empty scopes/categories show a graceful empty state with guidance
 - [x] **TREE-06**: User can manually refresh the tree to pick up file system changes
-- [x] **TREE-07**: User can filter the tree by artifact type (e.g. "show all agents across all projects")
+- [x] **TREE-07**: User can filter the tree by artifact type (e.g. "show all agents across all projects"). Unknown type excluded as scanner drops unclassifiable files.
 - [x] **TREE-08**: User can search/filter artifacts by name with live filtering
 
 ### File Operations
