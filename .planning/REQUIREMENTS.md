@@ -33,7 +33,7 @@
 ### File Operations
 
 - [x] **OPS-01**: User can click an artifact to open it in their system editor
-- [ ] **OPS-02**: User can right-click an artifact to see a context menu with type-specific actions
+- [x] **OPS-02**: User can right-click an artifact to see a context menu with type-specific actions
 - [ ] **OPS-03**: User can navigate the tree with keyboard (arrow keys, enter to open, esc to close menu)
 - [x] **OPS-04**: User can copy an artifact from one project to another (cmd+c/v or context menu)
 - [x] **OPS-05**: User can move an artifact from one project to another
@@ -44,7 +44,7 @@
 
 ### Artifact Summary
 
-- [ ] **SUMM-01**: User can see a quick summary of what each artifact does (extracted from frontmatter/description) in a detail pane or similar UI element
+- [x] **SUMM-01**: User can see a quick summary of what each artifact does (extracted from frontmatter/description) in a detail pane or similar UI element
 
 ## v2 Requirements
 
@@ -98,7 +98,7 @@
 | TREE-07 | Phase 2 | Complete |
 | TREE-08 | Phase 2 | Complete |
 | OPS-01 | Phase 3 | Complete |
-| OPS-02 | Phase 3 | Pending |
+| OPS-02 | Phase 3 | Complete |
 | OPS-03 | Phase 3 | Pending |
 | OPS-04 | Phase 3 | Complete |
 | OPS-05 | Phase 3 | Complete |
@@ -106,7 +106,7 @@
 | OPS-07 | Phase 3 | Complete |
 | OPS-08 | Phase 3 | Complete |
 | OPS-09 | Phase 3 | Complete |
-| SUMM-01 | Phase 3 | Pending |
+| SUMM-01 | Phase 3 | Complete |
 
 **Coverage:**
 - v1 requirements: 26 total

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-28T21:48:44.447Z"
+stopped_at: Completed 03-02-PLAN.md
+last_updated: "2026-03-28T21:54:41.569Z"
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 10
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -51,6 +51,7 @@ Plan: 1 of 4
 | Phase 02-tree-view P02 | 18 | 2 tasks | 7 files |
 | Phase 02-tree-view P03 | 18 | 1 tasks | 4 files |
 | Phase 03-operations P01 | 25 | 3 tasks | 4 files |
+| Phase 03-operations P02 | 15 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -82,6 +83,9 @@ Recent decisions affecting current work:
 - [Phase 02-tree-view]: headless-tree v1 API: item.getId() not item.getItemId() — fixed bug in ArtifactTree.tsx
 - [Phase 03-operations]: 400 response schema must be declared alongside 200 in Zod routes that call reply.code(400)
 - [Phase 03-operations]: Move/promote/demote use fs.cp+fs.rm (never fs.rename) to avoid EXDEV cross-device errors
+- [Phase 03-operations]: TYPE_DIR_MAP exported from operationsApi.ts as single client-side source of truth
+- [Phase 03-operations]: showToast uses module-level subscriber set, no React context needed
+- [Phase 03-operations]: Selection state lifted to App.tsx via onSelectedArtifactChange callback
 
 ### Roadmap Evolution
 
@@ -98,6 +102,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T21:48:44.445Z
-Stopped at: Completed 03-01-PLAN.md
+Last session: 2026-03-28T21:54:41.567Z
+Stopped at: Completed 03-02-PLAN.md
 Resume file: None
