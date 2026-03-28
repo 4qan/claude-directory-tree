@@ -13,7 +13,7 @@ Four phases in dependency order: scaffold the working binary and scanner first, 
 Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Working npx binary, artifact scanner, and server with typed REST API (completed 2026-03-28)
-- [ ] **Phase 2: Tree View** - Read-only artifact tree with search, filter, refresh, and scope labels
+- [x] **Phase 2: Tree View** - Read-only artifact tree with search, filter, refresh, and scope labels (completed 2026-03-28)
 - [ ] **Phase 3: Operations** - File copy/move/promote/demote, context menu, keyboard nav, and artifact summaries
 - [ ] **Phase 4: Plugin Distribution** - Claude Code plugin (/tree command) and npm package for frictionless install
 
@@ -46,7 +46,7 @@ Plans:
   3. User can type in a search box and the tree filters live to matching artifact names
   4. User can select a type filter (e.g. "agents") and see only that artifact type across all scopes
   5. User can click a refresh button and the tree updates to reflect file system changes
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] 02-01-PLAN.md — Data layer: client types, iconMap, deriveVisibleTree filter function, test infrastructure
@@ -83,6 +83,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-28 |
-| 2. Tree View | 2/3 | In Progress|  |
+| 2. Tree View | 3/3 | Complete   | 2026-03-28 |
 | 3. Operations | 0/? | Not started | - |
 | 4. Plugin Distribution | 0/? | Not started | - |
