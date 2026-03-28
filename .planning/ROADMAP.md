@@ -28,7 +28,12 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `GET /api/scan` returns a correctly typed artifact tree with all artifact types detected (skills, agents, commands, plugins, hooks, CLAUDE.md, MCP servers, memory files, plan files)
   4. Global scope (`~/.claude/`) is distinguished from per-project scope in the API response
   5. The server binds to `127.0.0.1` only and does not accept external network connections
-**Plans**: TBD
+**Plans:** 3 plans
+
+Plans:
+- [ ] 01-01-PLAN.md — Project scaffold, type contracts, build tooling, and test fixtures
+- [ ] 01-02-PLAN.md — Artifact scanner: discovery, classification, scope detection, project registration
+- [ ] 01-03-PLAN.md — Fastify server, CLI entry point, React status page, end-to-end integration
 
 ### Phase 2: Tree View
 **Goal**: Users can see all their Claude artifacts organized by scope in an interactive tree, and find specific artifacts by name or type
@@ -61,6 +66,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/? | Not started | - |
+| 1. Foundation | 0/3 | Planned | - |
 | 2. Tree View | 0/? | Not started | - |
 | 3. Operations | 0/? | Not started | - |
