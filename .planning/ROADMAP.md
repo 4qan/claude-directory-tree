@@ -63,7 +63,13 @@ Plans:
   3. User can copy or move an artifact to another project; if a conflict exists the app prompts before overwriting
   4. User can navigate the tree with keyboard (arrow keys, Enter to open, Esc to close menu) without touching the mouse
   5. User can see a short summary of what each artifact does without opening the file
-**Plans**: TBD
+**Plans:** 4 plans
+
+Plans:
+- [ ] 03-01-PLAN.md — Server file operations API: open, copy, move, promote, demote, describe endpoints
+- [ ] 03-02-PLAN.md — Selection state, click/double-click handlers, ArtifactDetailPanel side panel
+- [ ] 03-03-PLAN.md — Context menu with flyout, conflict dialog, toast notifications, operation wiring
+- [ ] 03-04-PLAN.md — Keyboard navigation, clipboard shortcuts (Cmd+C/V), human verification
 
 ### Phase 4: Plugin Distribution
 **Goal**: Users can install once and launch with `/tree` in Claude Code or `npx claude-directory-tree` from any terminal
@@ -84,5 +90,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-28 |
 | 2. Tree View | 3/3 | Complete   | 2026-03-28 |
-| 3. Operations | 0/? | Not started | - |
+| 3. Operations | 0/4 | Not started | - |
 | 4. Plugin Distribution | 0/? | Not started | - |
