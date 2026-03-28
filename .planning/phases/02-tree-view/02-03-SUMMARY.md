@@ -1,8 +1,8 @@
 ---
 phase: 02-tree-view
 plan: 03
-subsystem: ui
-tags: [react, testing-library, vitest, headless-tree, ArtifactTree]
+subsystem: ui, scanner
+tags: [react, headless-tree, scanner, mcp, plugins]
 
 # Dependency graph
 requires:
@@ -12,7 +12,8 @@ requires:
 provides:
   - App.tsx fully wired to ArtifactTree with scan state, query, typeFilter, error handling
   - 6 passing component tests covering TREE-01, TREE-03, TREE-04, TREE-06, loading, error states
-  - Working tree view in browser (pending human visual verification)
+  - Scanner overhaul: whitelist scanning, dedup, MCP scopes, plugin status, project discovery
+  - Verified tree view in browser (human visual checkpoint passed)
 
 affects: [03-artifact-actions, 04-plugin-distribution]
 
@@ -20,102 +21,90 @@ affects: [03-artifact-actions, 04-plugin-distribution]
 tech-stack:
   added: ["@testing-library/react", "@testing-library/jest-dom"]
   patterns:
-    - "@vitest-environment happy-dom docblock for component tests (environmentMatchGlobs not supported in vitest 4.x)"
-    - "Component tests import ArtifactTree directly with mock ScopeNode fixtures"
-    - "item.getId() is the correct headless-tree v1 API (not getItemId())"
+    - "@vitest-environment happy-dom docblock for component tests"
+    - "headless-tree requires explicit rebuildTree() call when data changes after mount"
+    - "Artifact IDs must include projectId to prevent cross-scope collision"
 
 key-files:
-  created: []
+  created:
+    - .planning/BACKLOG.md
   modified:
     - client/src/App.tsx
-    - tests/ArtifactTree.test.tsx
     - client/src/components/tree/ArtifactTree.tsx
+    - client/src/components/tree/TreeItem.tsx
+    - client/src/components/tree/TreeToolbar.tsx
+    - client/src/components/tree/iconMap.ts
+    - client/src/lib/deriveVisibleTree.ts
+    - client/src/lib/types.ts
+    - src/scanner/classify.ts
+    - src/scanner/discover.ts
+    - src/scanner/index.ts
+    - src/scanner/types.ts
+    - vite.config.ts
 
 key-decisions:
-  - "@vitest-environment happy-dom docblock required for .tsx test files in vitest 4.x (environmentMatchGlobs removed)"
-  - "headless-tree v1 API uses item.getId() not item.getItemId()"
-  - "getAllByText used for 'Agents' assertion since label also appears in type-filter select dropdown"
+  - "Whitelist artifact dirs (commands, agents, skills, memory, plans, hooks, references) instead of walking all files"
+  - "Drop unknown type entirely — if scanner can't classify it, don't show it"
+  - "MCP servers tagged with mcpScope (project/local/user) from 3 sources: .mcp.json, ~/.claude.json global, ~/.claude.json per-project"
+  - "Plugin enabled/disabled from settings.json enabledPlugins field"
+  - "GSD system commands filtered from project scopes (they're copies, not project-specific)"
+  - "Section-based sorting: global > current project > alphabetical other projects"
+  - "Expand/collapse all as text toggle above tree, not toolbar buttons"
 
-patterns-established:
-  - "Component tests use @vitest-environment happy-dom docblock at file top"
-  - "Mock ScopeNode fixtures include both globalScope and projectScope for realistic test coverage"
-
-requirements-completed: [TREE-01, TREE-03, TREE-04, TREE-05, TREE-06, TREE-08]
+requirements-completed: [TREE-01, TREE-02, TREE-03, TREE-04, TREE-05, TREE-06, TREE-07, TREE-08]
 
 # Metrics
-duration: 18min
-completed: 2026-03-28
+duration: ~3hrs (includes extensive visual checkpoint review)
+completed: 2026-03-29
 ---
 
-# Phase 02 Plan 03: App Integration and Component Tests Summary
+# Phase 02 Plan 03: App Integration, Visual Verification, Scanner Overhaul
 
-**App.tsx rewired from placeholder Card to full ArtifactTree with scan state; 6 component tests passing via @testing-library/react in happy-dom environment**
+## Summary
 
-## Performance
-
-- **Duration:** 18 min
-- **Started:** 2026-03-28T22:32:00Z
-- **Completed:** 2026-03-28T22:50:00Z
-- **Tasks:** 1 of 2 complete (Task 2 is a human-verify checkpoint)
-- **Files modified:** 4
+Wired ArtifactTree into App.tsx and completed component tests. Visual checkpoint with user revealed major scanner data quality issues (not tree UI bugs) which were fixed inline: 12k unknowns eliminated, deduplication added, MCP scope tagging, plugin status, and project discovery from ~/.claude/projects/.
 
 ## Accomplishments
 
-- Replaced placeholder Card in App.tsx with ArtifactTree, wiring scan state, query, typeFilter, error, and refresh
-- Installed @testing-library/react + @testing-library/jest-dom and completed all 6 RED-phase test stubs
-- Fixed a headless-tree API bug (getItemId -> getId) discovered during component testing
+### App Integration (pre-checkpoint)
+- Replaced placeholder Card with ArtifactTree in App.tsx
+- Completed 6 component tests from RED-phase stubs
+- Fixed headless-tree API (getId vs getItemId)
 
-## Task Commits
+### Scanner Overhaul (during checkpoint)
+- Whitelist-based scanning: 12,146 -> 128 global artifacts (eliminated unknowns)
+- Deduplication by name+type (skills were 3x duplicated across marketplace copies)
+- MCP extraction from .mcp.json + ~/.claude.json with scope tagging (project/local/user)
+- Hook extraction with correct event-keyed settings.json format
+- Memory discovery from ~/.claude/projects/{encoded}/memory/
+- Plugin naming from plugin.json content, enabled/disabled from settings.json
+- Project discovery from ~/.claude/projects/ with ambiguous path resolution (spaces, dashes)
+- GSD system commands filtered from project scopes
+- Empty scopes filtered from results
 
-1. **Task 1: Rewrite App.tsx and complete component tests** - `eb01a0e` (feat)
+### UI Polish (during checkpoint)
+- rebuildTree on data change (headless-tree only rebuilds on mount)
+- Cross-scope ID collision fix (include projectId in hash)
+- Header/toolbar overlap fixed
+- Scope badges removed from parent nodes
+- MCP scope pills with color coding (blue/amber/purple)
+- Plugin enabled/disabled pills (green/grey)
+- Section headers (Current Project / Other Projects) with alphabetical sort
+- Expand all / Collapse all text toggle
+- Auto-expand on filter, collapse on clear
+- Type filter crash fix
+- deriveVisibleTree fix for plugins with empty children[]
 
-## Files Created/Modified
+## Commits
 
-- `client/src/App.tsx` - Replaced placeholder Card with ArtifactTree; full scan state ownership
-- `tests/ArtifactTree.test.tsx` - Completed 6 component tests (unskipped, all passing)
-- `client/src/components/tree/ArtifactTree.tsx` - Fixed item.getId() API call (bug fix)
-- `package.json` / `package-lock.json` - Added @testing-library/react and @testing-library/jest-dom
+1. `eb01a0e` — feat(02-03): wire ArtifactTree into App.tsx, complete component tests
+2. `08949ce` — docs(02-03): checkpoint reached
+3. `1dda19c` — fix(02-03): tree rendering fixes
+4. `8538783` — fix(02-03): scanner overhaul
+5. `53293d0` — docs(02-03): add BACKLOG.md
 
-## Decisions Made
-
-- Used `@vitest-environment happy-dom` docblock at test file top — environmentMatchGlobs config key was removed in vitest 4.x
-- headless-tree v1 exposes `item.getId()`, not `item.getItemId()` — fixed in ArtifactTree.tsx
-- "Agents" appears in both tree nodes and type-filter select; test uses `getAllByText` to avoid ambiguity
-
-## Deviations from Plan
-
-### Auto-fixed Issues
-
-**1. [Rule 3 - Blocking] vitest environmentMatchGlobs not supported in vitest 4.x**
-- **Found during:** Task 1 (component test execution)
-- **Issue:** vitest.config.ts used environmentMatchGlobs for .tsx files but it doesn't exist in vitest 4.x; tests ran in node environment with no document
-- **Fix:** Added `// @vitest-environment happy-dom` docblock at top of ArtifactTree.test.tsx
-- **Files modified:** tests/ArtifactTree.test.tsx
-- **Verification:** All 6 tests pass with DOM environment
-- **Committed in:** eb01a0e (Task 1 commit)
-
-**2. [Rule 1 - Bug] headless-tree getItemId() doesn't exist in v1 API**
-- **Found during:** Task 1 (component test execution — tree rendering failed)
-- **Issue:** ArtifactTree.tsx called item.getItemId() but headless-tree v1 exposes getId()
-- **Fix:** Changed key={item.getItemId()} to key={item.getId()} in ArtifactTree.tsx
-- **Files modified:** client/src/components/tree/ArtifactTree.tsx
-- **Verification:** 4 additional tests pass (scope labels, badges, counts, refresh)
-- **Committed in:** eb01a0e (Task 1 commit)
-
----
-
-**Total deviations:** 2 auto-fixed (1 blocking environment config, 1 API bug)
-**Impact on plan:** Both fixes necessary for tests to pass. No scope creep.
-
-## Issues Encountered
-
-- INFRA-03 server test (port fallback) was pre-existing failing test before this plan — out of scope, deferred
-
-## Next Phase Readiness
-
-- Tree view is code-complete and build-verified; awaiting human visual confirmation (Task 2 checkpoint)
-- After human approval, Phase 02 is complete and Phase 03 (artifact actions) can begin
+## Self-Check: PASSED
 
 ---
 *Phase: 02-tree-view*
-*Completed: 2026-03-28*
+*Completed: 2026-03-29*
