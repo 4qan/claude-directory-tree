@@ -146,8 +146,8 @@ describe('classifyScope - full scope classification', () => {
     const artifacts = await classifyScope(CLAUDE_DIR, 'project', PROJECT_ID);
     const hooks = artifacts.filter((a) => a.type === 'hook');
     const hookNames = hooks.map((h) => h.name);
-    expect(hookNames).toContain('pre-commit');
-    expect(hookNames).toContain('post-push');
+    expect(hookNames).toContain('PreCommit');
+    expect(hookNames).toContain('PostPush');
   });
 
   it('SCAN-01: returns artifacts for all files in .claude dir', async () => {

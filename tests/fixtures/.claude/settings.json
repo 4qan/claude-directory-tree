@@ -1,6 +1,18 @@
 {
-  "hooks": [
-    { "name": "pre-commit", "command": "npm test" },
-    { "name": "post-push", "command": "echo done" }
-  ]
+  "hooks": {
+    "PreCommit": [
+      {
+        "hooks": [
+          { "type": "command", "command": "npm test" }
+        ]
+      }
+    ],
+    "PostPush": [
+      {
+        "hooks": [
+          { "type": "command", "command": "echo done" }
+        ]
+      }
+    ]
+  }
 }

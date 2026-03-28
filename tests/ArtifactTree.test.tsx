@@ -14,6 +14,7 @@ const globalScope: ScopeNode = {
   id: 'global',
   label: 'Global',
   scope: 'global',
+  section: 'global',
   rootPath: '/Users/test/.claude',
   artifactCount: 3,
   artifacts: [
@@ -51,6 +52,7 @@ const projectScope: ScopeNode = {
   id: 'project-my-app',
   label: 'my-app',
   scope: 'project',
+  section: 'projects',
   rootPath: '/Users/test/projects/my-app',
   artifactCount: 1,
   artifacts: [
@@ -88,20 +90,22 @@ describe('ArtifactTree', () => {
     expect(screen.getByText('my-app')).toBeInTheDocument();
   });
 
-  // TREE-03: scope badges
-  it('renders scope badges with global/project text', () => {
+  // TREE-03: scope nodes render without badges (badges removed, position conveys scope)
+  it('renders scope labels without scope badges', () => {
     render(<ArtifactTree {...defaultProps} scopes={mockScopes} />);
-    // scope badges render as text inside the tree rows
-    expect(screen.getByText('global')).toBeInTheDocument();
-    expect(screen.getByText('project')).toBeInTheDocument();
+    expect(screen.getByText('Global')).toBeInTheDocument();
+    expect(screen.getByText('my-app')).toBeInTheDocument();
+    // Scope badges were removed — "global" and "project" text should not appear
+    expect(screen.queryByText('global')).not.toBeInTheDocument();
+    expect(screen.queryByText('project')).not.toBeInTheDocument();
   });
 
-  // TREE-04: artifact count
-  it('renders category nodes with artifact count', () => {
+  // TREE-04: artifact count visible after expanding scope
+  it('renders category nodes with artifact count after expanding', () => {
     render(<ArtifactTree {...defaultProps} scopes={mockScopes} />);
-    // headless-tree expands scopes by default; category nodes should be visible
+    // Tree starts collapsed. Click "Expand all" to reveal categories.
+    fireEvent.click(screen.getByText('Expand all'));
     // The category for agents should show "(2)" count
-    // Use getAllByText because "Agents" also appears in the type-filter dropdown
     const agentsLabels = screen.getAllByText('Agents');
     expect(agentsLabels.length).toBeGreaterThan(0);
     expect(screen.getByText('(2)')).toBeInTheDocument();
