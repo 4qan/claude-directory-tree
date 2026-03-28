@@ -1,6 +1,8 @@
 import { useState, useCallback, useEffect } from 'react';
 import { ArtifactTree } from '@/components/tree/ArtifactTree';
-import type { ScanResponse, ArtifactType } from '@/lib/types';
+import { ArtifactDetailPanel } from '@/components/ArtifactDetailPanel';
+import { ToastContainer } from '@/components/Toast';
+import type { ScanResponse, ArtifactType, Artifact } from '@/lib/types';
 
 export function App() {
   const [state, setState] = useState<'loading' | 'result' | 'error'>('loading');
@@ -8,6 +10,7 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
   const [query, setQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState<ArtifactType | null>(null);
+  const [selectedArtifact, setSelectedArtifact] = useState<Artifact | null>(null);
 
   const scan = useCallback(async () => {
     setState('loading');
@@ -31,18 +34,26 @@ export function App() {
       <header className="px-6 pt-6 pb-2">
         <h1 className="text-xl font-semibold text-foreground">Claude Directory Tree</h1>
       </header>
-      <main className="flex-1 flex flex-col">
-        <ArtifactTree
-          scopes={data?.scopes ?? []}
-          query={query}
-          typeFilter={typeFilter}
-          onQueryChange={setQuery}
-          onTypeFilterChange={setTypeFilter}
-          onRefresh={scan}
-          isLoading={state === 'loading'}
-          error={state === 'error' ? (error ?? 'Failed to scan directory.') : null}
+      <main className="flex-1 flex min-h-0">
+        <div className="flex-1 flex flex-col min-h-0">
+          <ArtifactTree
+            scopes={data?.scopes ?? []}
+            query={query}
+            typeFilter={typeFilter}
+            onQueryChange={setQuery}
+            onTypeFilterChange={setTypeFilter}
+            onRefresh={scan}
+            isLoading={state === 'loading'}
+            error={state === 'error' ? (error ?? 'Failed to scan directory.') : null}
+            onSelectedArtifactChange={setSelectedArtifact}
+          />
+        </div>
+        <ArtifactDetailPanel
+          artifact={selectedArtifact}
+          onClose={() => setSelectedArtifact(null)}
         />
       </main>
+      <ToastContainer />
     </div>
   );
 }

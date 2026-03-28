@@ -1,12 +1,13 @@
 import { useMemo, useEffect, useRef, useState, useCallback } from 'react';
 import { useTree } from '@headless-tree/react';
-import { syncDataLoaderFeature } from '@headless-tree/core';
+import { syncDataLoaderFeature, selectionFeature, hotkeysCoreFeature } from '@headless-tree/core';
 import { Button } from '@/components/ui/button';
 import { TreeItem } from '@/components/tree/TreeItem';
 import { TreeSkeleton } from '@/components/tree/TreeSkeleton';
 import { TreeToolbar } from '@/components/tree/TreeToolbar';
 import { TYPE_LABELS } from '@/components/tree/iconMap';
 import { deriveVisibleTree } from '@/lib/deriveVisibleTree';
+import { openInEditor } from '@/lib/operationsApi';
 import type { ArtifactType, ScopeNode, Artifact } from '@/lib/types';
 import type { TreeNodeData } from '@/components/tree/TreeItem';
 
@@ -19,6 +20,7 @@ interface ArtifactTreeProps {
   onRefresh: () => void;
   isLoading: boolean;
   error: string | null;
+  onSelectedArtifactChange?: (artifact: Artifact | null) => void;
 }
 
 function buildItemMaps(filteredScopes: ScopeNode[]): {
@@ -109,6 +111,7 @@ export function ArtifactTree({
   onRefresh,
   isLoading,
   error,
+  onSelectedArtifactChange,
 }: ArtifactTreeProps) {
   const filteredScopes = useMemo(
     () => deriveVisibleTree(scopes, query, typeFilter),
@@ -119,6 +122,22 @@ export function ArtifactTree({
     () => buildItemMaps(filteredScopes),
     [filteredScopes]
   );
+
+  // Selection state
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+
+  // Derive selected artifact from selection state
+  const selectedArtifact = useMemo((): Artifact | null => {
+    if (selectedIds.length !== 1) return null;
+    const d = items[selectedIds[0]];
+    return d?.nodeKind === 'leaf' ? (d as Artifact & { nodeKind: 'leaf' }) : null;
+  }, [selectedIds, items]);
+
+  // Notify parent when selectedArtifact changes
+  useEffect(() => {
+    onSelectedArtifactChange?.(selectedArtifact);
+  }, [selectedArtifact, onSelectedArtifactChange]);
 
   // Stable dataLoader reference to preserve expand state across filter updates.
   // Return a fallback for missing items to prevent crashes when filters change.
@@ -141,8 +160,17 @@ export function ArtifactTree({
     },
     isItemFolder: (item) => item.getItemData().nodeKind !== 'leaf',
     dataLoader,
-    initialState: { expandedItems: [] },
-    features: [syncDataLoaderFeature],
+    initialState: { expandedItems: [], selectedItems: [], focusedItem: null },
+    state: { selectedItems: selectedIds, focusedItem: focusedId },
+    setSelectedItems: setSelectedIds,
+    setFocusedItem: setFocusedId,
+    onPrimaryAction: (item) => {
+      const d = item.getItemData();
+      if (d.nodeKind === 'leaf') {
+        openInEditor(d.absolutePath);
+      }
+    },
+    features: [syncDataLoaderFeature, selectionFeature, hotkeysCoreFeature],
   });
 
   // Rebuild tree when data changes (useTree only calls rebuildTree on mount)
@@ -186,8 +214,27 @@ export function ArtifactTree({
     tree.rebuildTree();
   }, [isExpanded, items, tree]);
 
+  const handleSelect = useCallback((data: TreeNodeData) => {
+    if (data.nodeKind === 'leaf') {
+      setSelectedIds([data.id]);
+    }
+  }, []);
+
+  const handleDoubleClick = useCallback((data: TreeNodeData) => {
+    if (data.nodeKind === 'leaf') {
+      openInEditor(data.absolutePath);
+    }
+  }, []);
+
+  // Esc key: clear selection (hides detail panel)
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setSelectedIds([]);
+    }
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 min-h-0">
+    <div className="flex flex-col flex-1 min-h-0" onKeyDown={handleKeyDown}>
       <TreeToolbar
         query={query}
         typeFilter={typeFilter}
@@ -291,6 +338,8 @@ export function ArtifactTree({
                 }
               }
 
+              const isLeafSelected = data.nodeKind === 'leaf' && selectedIds.includes(data.id);
+
               return (
                 <div key={item.getId()}>
                   {sectionHeader}
@@ -298,7 +347,12 @@ export function ArtifactTree({
                     style={{ paddingLeft: item.getItemMeta().level * 16 }}
                     {...item.getProps()}
                   >
-                    <TreeItem item={item} />
+                    <TreeItem
+                      item={item}
+                      isSelected={isLeafSelected}
+                      onSelect={handleSelect}
+                      onDoubleClick={handleDoubleClick}
+                    />
                   </div>
                 </div>
               );

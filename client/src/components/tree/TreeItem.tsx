@@ -14,16 +14,23 @@ export type TreeNodeData =
 
 interface TreeItemProps {
   item: ItemInstance<TreeNodeData>;
+  isSelected?: boolean;
+  onSelect?: (data: TreeNodeData) => void;
+  onDoubleClick?: (data: TreeNodeData) => void;
+  onContextMenu?: (e: React.MouseEvent, data: TreeNodeData) => void;
 }
 
-export function TreeItem({ item }: TreeItemProps) {
+export function TreeItem({ item, isSelected, onSelect, onDoubleClick, onContextMenu }: TreeItemProps) {
   const data = item.getItemData();
   const isFolder = item.isFolder();
   const isExpanded = isFolder && item.isExpanded();
 
   if (data.nodeKind === 'scope') {
     return (
-      <div className="flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default hover:bg-muted">
+      <div
+        className="flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default hover:bg-muted"
+        onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e, data); }}
+      >
         <ChevronRight
           size={16}
           className={cn(
@@ -38,7 +45,10 @@ export function TreeItem({ item }: TreeItemProps) {
 
   if (data.nodeKind === 'category') {
     return (
-      <div className="flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default hover:bg-muted">
+      <div
+        className="flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default hover:bg-muted"
+        onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e, data); }}
+      >
         <ChevronRight
           size={16}
           className={cn(
@@ -55,7 +65,15 @@ export function TreeItem({ item }: TreeItemProps) {
   if (data.nodeKind === 'leaf') {
     const Icon = ICON_MAP[data.type] ?? ICON_MAP['unknown'];
     return (
-      <div className="flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default hover:bg-muted">
+      <div
+        className={cn(
+          'flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none',
+          isSelected && 'bg-primary/10'
+        )}
+        onClick={() => onSelect?.(data)}
+        onDoubleClick={() => onDoubleClick?.(data)}
+        onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e, data); }}
+      >
         {/* Spacer aligns leaf with category chevron */}
         <span className="w-4 shrink-0" />
         <Icon size={16} className="text-foreground shrink-0" />
@@ -66,7 +84,7 @@ export function TreeItem({ item }: TreeItemProps) {
             data.mcpScope === 'project' && 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300',
             data.mcpScope === 'local' && 'bg-amber-100 text-amber-700 dark:bg-amber-900 dark:text-amber-300',
             data.mcpScope === 'user' && 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300',
-          )}>{data.mcpScope}</span>
+          )}>{MCP_SCOPE_LABELS[data.mcpScope]}</span>
         )}
         {data.type === 'plugin' && data.enabled !== undefined && (
           <span className={cn(
