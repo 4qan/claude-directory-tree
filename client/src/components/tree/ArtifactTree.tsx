@@ -8,6 +8,7 @@ import { TreeToolbar } from '@/components/tree/TreeToolbar';
 import { TYPE_LABELS } from '@/components/tree/iconMap';
 import { deriveVisibleTree } from '@/lib/deriveVisibleTree';
 import { openInEditor } from '@/lib/operationsApi';
+import { ContextMenu } from '@/components/ContextMenu';
 import type { ArtifactType, ScopeNode, Artifact } from '@/lib/types';
 import type { TreeNodeData } from '@/components/tree/TreeItem';
 
@@ -138,6 +139,25 @@ export function ArtifactTree({
   useEffect(() => {
     onSelectedArtifactChange?.(selectedArtifact);
   }, [selectedArtifact, onSelectedArtifactChange]);
+
+  // Context menu state
+  const [contextMenu, setContextMenu] = useState<{
+    x: number;
+    y: number;
+    nodeKind: 'leaf' | 'scope' | 'category';
+    data: TreeNodeData;
+  } | null>(null);
+
+  const handleContextMenu = useCallback((e: React.MouseEvent, data: TreeNodeData) => {
+    if (data.nodeKind === 'root') return;
+    e.preventDefault();
+    setContextMenu({
+      x: e.clientX,
+      y: e.clientY,
+      nodeKind: data.nodeKind as 'leaf' | 'scope' | 'category',
+      data,
+    });
+  }, []);
 
   // Stable dataLoader reference to preserve expand state across filter updates.
   // Return a fallback for missing items to prevent crashes when filters change.
@@ -352,6 +372,7 @@ export function ArtifactTree({
                       isSelected={isLeafSelected}
                       onSelect={handleSelect}
                       onDoubleClick={handleDoubleClick}
+                      onContextMenu={handleContextMenu}
                     />
                   </div>
                 </div>
@@ -360,6 +381,17 @@ export function ArtifactTree({
           </div>
         );
       })()}
+      {contextMenu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          nodeKind={contextMenu.nodeKind}
+          data={contextMenu.data}
+          scopes={scopes}
+          onClose={() => setContextMenu(null)}
+          onRefresh={onRefresh}
+        />
+      )}
     </div>
   );
 }
