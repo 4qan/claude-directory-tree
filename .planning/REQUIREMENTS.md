@@ -81,38 +81,38 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFRA-01 | - | Pending |
-| INFRA-02 | - | Pending |
-| INFRA-03 | - | Pending |
-| INFRA-04 | - | Pending |
-| SCAN-01 | - | Pending |
-| SCAN-02 | - | Pending |
-| SCAN-03 | - | Pending |
-| SCAN-04 | - | Pending |
-| TREE-01 | - | Pending |
-| TREE-02 | - | Pending |
-| TREE-03 | - | Pending |
-| TREE-04 | - | Pending |
-| TREE-05 | - | Pending |
-| TREE-06 | - | Pending |
-| TREE-07 | - | Pending |
-| TREE-08 | - | Pending |
-| OPS-01 | - | Pending |
-| OPS-02 | - | Pending |
-| OPS-03 | - | Pending |
-| OPS-04 | - | Pending |
-| OPS-05 | - | Pending |
-| OPS-06 | - | Pending |
-| OPS-07 | - | Pending |
-| OPS-08 | - | Pending |
-| OPS-09 | - | Pending |
-| SUMM-01 | - | Pending |
+| INFRA-01 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Pending |
+| INFRA-03 | Phase 1 | Pending |
+| INFRA-04 | Phase 1 | Pending |
+| SCAN-01 | Phase 1 | Pending |
+| SCAN-02 | Phase 1 | Pending |
+| SCAN-03 | Phase 1 | Pending |
+| SCAN-04 | Phase 1 | Pending |
+| TREE-01 | Phase 2 | Pending |
+| TREE-02 | Phase 2 | Pending |
+| TREE-03 | Phase 2 | Pending |
+| TREE-04 | Phase 2 | Pending |
+| TREE-05 | Phase 2 | Pending |
+| TREE-06 | Phase 2 | Pending |
+| TREE-07 | Phase 2 | Pending |
+| TREE-08 | Phase 2 | Pending |
+| OPS-01 | Phase 3 | Pending |
+| OPS-02 | Phase 3 | Pending |
+| OPS-03 | Phase 3 | Pending |
+| OPS-04 | Phase 3 | Pending |
+| OPS-05 | Phase 3 | Pending |
+| OPS-06 | Phase 3 | Pending |
+| OPS-07 | Phase 3 | Pending |
+| OPS-08 | Phase 3 | Pending |
+| OPS-09 | Phase 3 | Pending |
+| SUMM-01 | Phase 3 | Pending |
 
 **Coverage:**
 - v1 requirements: 26 total
-- Mapped to phases: 0
-- Unmapped: 26
+- Mapped to phases: 26
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-28*
-*Last updated: 2026-03-28 after initial definition*
+*Last updated: 2026-03-28 after roadmap creation*
