@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-02-PLAN.md
-last_updated: "2026-03-28T21:54:41.569Z"
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-03-28T21:59:37.591Z"
 progress:
   total_phases: 4
   completed_phases: 2
   total_plans: 10
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -52,6 +52,7 @@ Plan: 1 of 4
 | Phase 02-tree-view P03 | 18 | 1 tasks | 4 files |
 | Phase 03-operations P01 | 25 | 3 tasks | 4 files |
 | Phase 03-operations P02 | 15 | 2 tasks | 7 files |
+| Phase 03-operations P03 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,8 @@ Recent decisions affecting current work:
 - [Phase 03-operations]: TYPE_DIR_MAP exported from operationsApi.ts as single client-side source of truth
 - [Phase 03-operations]: showToast uses module-level subscriber set, no React context needed
 - [Phase 03-operations]: Selection state lifted to App.tsx via onSelectedArtifactChange callback
+- [Phase 03-operations]: ConflictDialog managed inside ContextMenu state to keep conflict retry logic co-located with the triggering operation
+- [Phase 03-operations]: Category Copy Path resolves rootPath from parent scope by splitting category id on colon (scopeId:type pattern)
 
 ### Roadmap Evolution
 
@@ -102,6 +105,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T21:54:41.567Z
-Stopped at: Completed 03-02-PLAN.md
+Last session: 2026-03-28T21:59:37.589Z
+Stopped at: Completed 03-03-PLAN.md
 Resume file: None

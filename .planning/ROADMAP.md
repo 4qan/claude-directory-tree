@@ -63,7 +63,7 @@ Plans:
   3. User can copy or move an artifact to another project; if a conflict exists the app prompts before overwriting
   4. User can navigate the tree with keyboard (arrow keys, Enter to open, Esc to close menu) without touching the mouse
   5. User can see a short summary of what each artifact does without opening the file
-**Plans:** 2/4 plans executed
+**Plans:** 3/4 plans executed
 
 Plans:
 - [ ] 03-01-PLAN.md — Shared type contracts, server operations API (open/copy/move/promote/demote/describe), pre-flight reference scanning, operations matrix enforcement
@@ -90,5 +90,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-28 |
 | 2. Tree View | 3/3 | Complete   | 2026-03-28 |
-| 3. Operations | 2/4 | In Progress|  |
+| 3. Operations | 3/4 | In Progress|  |
 | 4. Plugin Distribution | 0/? | Not started | - |
