@@ -8,8 +8,8 @@
 ### Infrastructure
 
 - [x] **INFRA-01**: App launches via `npx claude-directory-tree` and opens localhost in browser
-- [ ] **INFRA-02**: Server runs on localhost only, no network calls, no telemetry
-- [ ] **INFRA-03**: Dynamic port allocation if default port is taken
+- [x] **INFRA-02**: Server runs on localhost only, no network calls, no telemetry
+- [x] **INFRA-03**: Dynamic port allocation if default port is taken
 - [x] **INFRA-04**: Sub-second startup with instant tree rendering for 15+ projects
 
 ### Scanning
@@ -82,8 +82,8 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | INFRA-01 | Phase 1 | Complete |
-| INFRA-02 | Phase 1 | Pending |
-| INFRA-03 | Phase 1 | Pending |
+| INFRA-02 | Phase 1 | Complete |
+| INFRA-03 | Phase 1 | Complete |
 | INFRA-04 | Phase 1 | Complete |
 | SCAN-01 | Phase 1 | Complete |
 | SCAN-02 | Phase 1 | Complete |

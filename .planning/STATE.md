@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-foundation-02-PLAN.md
-last_updated: "2026-03-28T20:32:00.000Z"
+stopped_at: "Completed 01-foundation-03-PLAN.md (checkpoint:human-verify Task 3 pending)"
+last_updated: "2026-03-28T15:39:16.561Z"
 progress:
   total_phases: 3
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 3
-  completed_plans: 2
+  completed_plans: 3
 ---
 
 # Project State
@@ -47,6 +47,7 @@ Plan: 2 of 3
 
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 5 | 2 tasks | 26 files |
+| Phase 01-foundation P03 | 8 | 2 tasks | 16 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Two separate tsup configs: cli entry gets shebang banner, server entry does not
 - [Phase 01-foundation Plan 02]: Plugin artifact name uses parent directory name (e.g., test-plugin), not filename (plugin)
 - [Phase 01-foundation Plan 02]: configFile optional param pattern used for config functions to enable test isolation
+- [Phase 01-foundation]: shadcn components installed manually (offline) - functionally equivalent to npx shadcn add
+- [Phase 01-foundation]: createServer/startServer split: createServer() for test injection without port binding, startServer() for production
+- [Phase 01-foundation]: CORS only registered in NODE_ENV=development, not production (SPA served by same Fastify instance)
 
 ### Pending Todos
 
@@ -75,6 +79,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T20:32:00.000Z
-Stopped at: Completed 01-foundation-02-PLAN.md
+Last session: 2026-03-28T15:39:16.559Z
+Stopped at: Completed 01-foundation-03-PLAN.md (checkpoint:human-verify Task 3 pending)
 Resume file: None
