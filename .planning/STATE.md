@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Phase 2 context gathered
-last_updated: "2026-03-28T16:05:12.281Z"
+stopped_at: Phase 2 UI-SPEC approved
+last_updated: "2026-03-28T17:20:52.820Z"
 progress:
   total_phases: 4
   completed_phases: 1
-  total_plans: 3
+  total_plans: 6
   completed_plans: 3
 ---
 
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Make every Claude Code artifact visible and actionable across all projects and scopes from a single tree view.
-**Current focus:** Phase 01 — foundation
+**Current focus:** Phase 02 — tree-view
 
 ## Current Position
 
-Phase: 01 (foundation) — EXECUTING
+Phase: 02 (tree-view) — EXECUTING
 Plan: 2 of 3
 
 ## Performance Metrics
@@ -69,6 +69,9 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: CORS only registered in NODE_ENV=development, not production (SPA served by same Fastify instance)
 - [Phase 01-foundation]: Two separate tsup configs: cli entry gets shebang banner from tsup config (not source file), server entry does not
 - [Phase 01-foundation]: Static asset path in bundled CLI must use process.cwd() anchor, not import.meta.url, because tsup inlines server code into dist/cli.js
+- [Phase 02-tree-view Plan 01]: lucide-react v1 exports icons as React.forwardRef objects (typeof === 'object'), not plain functions — check $$typeof for valid React component detection
+- [Phase 02-tree-view Plan 01]: Client types use plain TypeScript union types (no Zod) — server validates, client trusts API responses
+- [Phase 02-tree-view Plan 01]: vitest @ alias resolves to client/src for consistent imports in both tests and production builds
 
 ### Roadmap Evolution
 
@@ -85,6 +88,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T16:05:12.279Z
-Stopped at: Phase 2 context gathered
-Resume file: .planning/phases/02-tree-view/02-CONTEXT.md
+Last session: 2026-03-28T22:35:00.000Z
+Stopped at: Completed 02-01-PLAN.md
+Resume file: .planning/phases/02-tree-view/02-02-PLAN.md

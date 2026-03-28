@@ -21,14 +21,14 @@
 
 ### Tree View
 
-- [ ] **TREE-01**: User sees a hierarchical tree with expand/collapse showing all artifacts organized by scope (global vs project)
-- [ ] **TREE-02**: Each artifact displays a type-specific icon and label
+- [x] **TREE-01**: User sees a hierarchical tree with expand/collapse showing all artifacts organized by scope (global vs project)
+- [x] **TREE-02**: Each artifact displays a type-specific icon and label
 - [ ] **TREE-03**: Each scope node shows a badge indicating global or project-local
 - [ ] **TREE-04**: Each scope/category node shows artifact count
-- [ ] **TREE-05**: Empty scopes/categories show a graceful empty state with guidance
+- [x] **TREE-05**: Empty scopes/categories show a graceful empty state with guidance
 - [ ] **TREE-06**: User can manually refresh the tree to pick up file system changes
-- [ ] **TREE-07**: User can filter the tree by artifact type (e.g. "show all agents across all projects")
-- [ ] **TREE-08**: User can search/filter artifacts by name with live filtering
+- [x] **TREE-07**: User can filter the tree by artifact type (e.g. "show all agents across all projects")
+- [x] **TREE-08**: User can search/filter artifacts by name with live filtering
 
 ### File Operations
 
@@ -89,14 +89,14 @@
 | SCAN-02 | Phase 1 | Complete |
 | SCAN-03 | Phase 1 | Complete |
 | SCAN-04 | Phase 1 | Complete |
-| TREE-01 | Phase 2 | Pending |
-| TREE-02 | Phase 2 | Pending |
+| TREE-01 | Phase 2 | Complete |
+| TREE-02 | Phase 2 | Complete |
 | TREE-03 | Phase 2 | Pending |
 | TREE-04 | Phase 2 | Pending |
-| TREE-05 | Phase 2 | Pending |
+| TREE-05 | Phase 2 | Complete |
 | TREE-06 | Phase 2 | Pending |
-| TREE-07 | Phase 2 | Pending |
-| TREE-08 | Phase 2 | Pending |
+| TREE-07 | Phase 2 | Complete |
+| TREE-08 | Phase 2 | Complete |
 | OPS-01 | Phase 3 | Pending |
 | OPS-02 | Phase 3 | Pending |
 | OPS-03 | Phase 3 | Pending |
