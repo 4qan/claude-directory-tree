@@ -27,6 +27,14 @@ Source: client/src/App.css, client/src/components/ui/*, 03-CONTEXT.md code_conte
 
 ---
 
+## Visual Hierarchy
+
+Primary focal point: tree artifact list. Secondary: detail panel. Tertiary: toolbar.
+
+The tree always owns the most horizontal space. The detail panel slides in only when an artifact is selected and never obscures the tree. Toolbar elements (search, type filter) are visually subordinate — smaller text, no fill background in default state.
+
+---
+
 ## Spacing Scale
 
 Declared values (must be multiples of 4):
@@ -55,16 +63,17 @@ Source: TreeItem.tsx (`h-7`, `px-2`, `gap-2`), button.tsx size variants
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 14px (`text-sm`) | 400 (normal) | 1.5 |
-| Label | 12px (`text-xs`) | 500 (medium) | 1.4 |
+| Label | 12px (`text-xs`) | 400 (normal) | 1.4 |
 | Heading | 16px (`text-base`) | 600 (semibold) | 1.2 |
-| Caption | 10px (`text-[10px]`) | 500 (medium) | 1.0 |
+| Caption | 10px (`text-[10px]`) | 400 (normal) | 1.0 |
 
 Notes:
 - Body (`text-sm`, weight 400) is the default for all artifact names and panel content — matches existing TreeItem leaf rendering
-- Label (`text-xs`, weight 500) is for metadata: scope path, artifact type in detail panel
-- Heading (`text-base`, weight 600) is for panel section headers and context menu group labels
-- Caption (`text-[10px]`, weight 500) is for existing MCP scope and plugin enabled/disabled badges — do not change
+- Label (`text-xs`, weight 400) is for metadata: scope path, artifact type in detail panel
+- Heading (`text-base`, weight 600) is for panel section headers and context menu group labels only
+- Caption (`text-[10px]`, weight 400) is for existing MCP scope and plugin enabled/disabled badges — do not change
 - No new font sizes introduced; all four roles are already present in the Phase 2 codebase
+- Two weights only: 400 (normal) for body/label/caption, 600 (semibold) for heading
 
 Source: TreeItem.tsx class names, button.tsx (`text-sm font-medium`), 03-CONTEXT.md
 
@@ -79,7 +88,7 @@ All values are CSS custom property references. Resolved hex depends on light/dar
 | Dominant (60%) | `hsl(var(--background))` | #ffffff | #0a0a0f | Main app background, tree panel background |
 | Secondary (30%) | `hsl(var(--muted))` | #f4f4f6 | #27272a | Hover state on tree rows, toolbar background, side panel background |
 | Accent (10%) | `hsl(var(--primary))` | #17171a | #fafafa | Selected artifact row highlight, focused keyboard row ring |
-| Destructive | `hsl(var(--destructive))` | #ef4444 | #7f1d1d | Move operation (destructive), conflict Replace button, toast error state |
+| Destructive | `hsl(var(--destructive))` | #ef4444 | #7f1d1d | Move operation (destructive), conflict Replace File button, toast error state |
 
 Accent reserved for:
 1. Selected tree row background (single-click selection state)
@@ -218,15 +227,15 @@ Toast position: bottom-center of viewport. Stack from bottom upward if multiple.
 | Description fallback | "No description available." |
 | Conflict dialog heading | "File already exists" |
 | Conflict dialog body | "[artifact name] already exists in [project name]. Do you want to replace it?" |
-| Conflict dialog cancel | "Cancel" |
-| Conflict dialog confirm | "Replace" |
+| Conflict dialog cancel | "Keep Original" |
+| Conflict dialog confirm | "Replace File" |
 | Move error (conflict cancel) | Operation aborted, no toast shown |
 | Operation error toast | "Failed to [copy/move/promote/demote]: [server error message]. Check terminal for details." |
 | Clipboard empty paste | No action, no toast (silent fail — nothing to paste) |
 
 Destructive actions:
 - Move (destructive to source): No confirmation dialog — move is reversible via Cmd+Z (out of scope) or re-move. Source artifact is gone after move.
-- Replace on conflict: Confirmation dialog with "Replace" button (destructive variant, red) + "Cancel"
+- Replace on conflict: Confirmation dialog with "Replace File" button (destructive variant, red) + "Keep Original"
 - Promote/Demote: No confirmation — low-risk operations, easily reversed
 
 ---
