@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import getPort, { portNumbers } from 'get-port';
 import open from 'open';
 import { runScan } from './scanner/index.js';
