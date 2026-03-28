@@ -28,7 +28,7 @@ Decimal phases appear between their surrounding integers in numeric order.
   3. `GET /api/scan` returns a correctly typed artifact tree with all artifact types detected (skills, agents, commands, plugins, hooks, CLAUDE.md, MCP servers, memory files, plan files)
   4. Global scope (`~/.claude/`) is distinguished from per-project scope in the API response
   5. The server binds to `127.0.0.1` only and does not accept external network connections
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] 01-01-PLAN.md — Project scaffold, type contracts, build tooling, and test fixtures
@@ -66,6 +66,6 @@ Phases execute in numeric order: 1 → 2 → 3
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation | 0/3 | Planned | - |
+| 1. Foundation | 1/3 | In Progress|  |
 | 2. Tree View | 0/? | Not started | - |
 | 3. Operations | 0/? | Not started | - |
