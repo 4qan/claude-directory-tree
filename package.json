@@ -1,0 +1,51 @@
+{
+  "name": "claude-directory-tree",
+  "version": "0.1.0",
+  "description": "Visual file-explorer for all your Claude Code artifacts across projects and scopes",
+  "type": "module",
+  "bin": {
+    "claude-directory-tree": "./dist/cli.js"
+  },
+  "engines": {
+    "node": ">=20.17.0"
+  },
+  "scripts": {
+    "build:server": "tsup",
+    "build:client": "vite build",
+    "build": "npm run build:server && npm run build:client",
+    "dev:server": "tsup --watch",
+    "dev:client": "vite",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "artifacts",
+    "directory-tree"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@fastify/cors": "^11.2.0",
+    "@fastify/static": "^9.0.0",
+    "fastify": "^5.8.4",
+    "fastify-type-provider-zod": "^6.1.0",
+    "get-port": "^7.2.0",
+    "gray-matter": "^4.0.3",
+    "open": "^11.0.0",
+    "write-file-atomic": "^7.0.1",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/write-file-atomic": "^4.0.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "tsup": "^8.5.1",
+    "typescript": "^6.0.2",
+    "vite": "^8.0.3",
+    "vitest": "^4.1.2"
+  }
+}
