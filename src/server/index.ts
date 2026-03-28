@@ -6,6 +6,7 @@ import {
   type ZodTypeProvider,
 } from 'fastify-type-provider-zod';
 import { scanRoutes } from './routes/scan.js';
+import { operationsRoutes } from './routes/operations.js';
 import { registerStatic } from './static.js';
 
 export interface StartOptions {
@@ -24,6 +25,7 @@ export async function createServer(targetDir: string) {
   }
 
   await scanRoutes(server, targetDir);
+  await operationsRoutes(server, targetDir);
   await registerStatic(server);
 
   return server;
