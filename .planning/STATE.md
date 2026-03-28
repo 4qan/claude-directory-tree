@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Phase 3 UI-SPEC approved
-last_updated: "2026-03-28T19:48:58.721Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-28T21:48:44.447Z"
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 6
-  completed_plans: 6
+  total_plans: 10
+  completed_plans: 7
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Make every Claude Code artifact visible and actionable across all projects and scopes from a single tree view.
-**Current focus:** Phase 02 — tree-view
+**Current focus:** Phase 03 — operations
 
 ## Current Position
 
-Phase: 02 (tree-view) — EXECUTING
-Plan: 2 of 3
+Phase: 03 (operations) — EXECUTING
+Plan: 1 of 4
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Plan: 2 of 3
 | Phase 01-foundation P03 | 8 | 2 tasks | 16 files |
 | Phase 02-tree-view P02 | 18 | 2 tasks | 7 files |
 | Phase 02-tree-view P03 | 18 | 1 tasks | 4 files |
+| Phase 03-operations P01 | 25 | 3 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -79,6 +80,8 @@ Recent decisions affecting current work:
 - [Phase 02-tree-view]: nodeKind discriminant union type on TreeNodeData for type-safe scope/category/leaf rendering in TreeItem
 - [Phase 02-tree-view]: @vitest-environment happy-dom docblock required for .tsx test files in vitest 4.x (environmentMatchGlobs removed)
 - [Phase 02-tree-view]: headless-tree v1 API: item.getId() not item.getItemId() — fixed bug in ArtifactTree.tsx
+- [Phase 03-operations]: 400 response schema must be declared alongside 200 in Zod routes that call reply.code(400)
+- [Phase 03-operations]: Move/promote/demote use fs.cp+fs.rm (never fs.rename) to avoid EXDEV cross-device errors
 
 ### Roadmap Evolution
 
@@ -95,6 +98,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T19:48:58.719Z
-Stopped at: Phase 3 UI-SPEC approved
-Resume file: .planning/phases/03-operations/03-UI-SPEC.md
+Last session: 2026-03-28T21:48:44.445Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: None
