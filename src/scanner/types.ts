@@ -6,6 +6,8 @@ export const ArtifactTypeSchema = z.enum([
 ]);
 export type ArtifactType = z.infer<typeof ArtifactTypeSchema>;
 
+export type McpScope = 'project' | 'local' | 'user';
+
 // Define the TypeScript type first for the recursive reference
 export type Artifact = {
   id: string;
@@ -17,7 +19,11 @@ export type Artifact = {
   projectId: string;
   frontmatter?: Record<string, unknown>;
   children?: Artifact[];
+  mcpScope?: McpScope;
+  enabled?: boolean;
 };
+
+export const McpScopeSchema = z.enum(['project', 'local', 'user']);
 
 // Zod v4 recursive schema requires explicit ZodType annotation
 export const ArtifactSchema: z.ZodType<Artifact> = z.object({
@@ -30,12 +36,19 @@ export const ArtifactSchema: z.ZodType<Artifact> = z.object({
   projectId: z.string(),
   frontmatter: z.record(z.string(), z.unknown()).optional(),
   children: z.array(z.lazy(() => ArtifactSchema)).optional(),
+  mcpScope: McpScopeSchema.optional(),
+  enabled: z.boolean().optional(),
 });
+
+export type ScopeSection = 'global' | 'current' | 'projects';
+
+export const ScopeSectionSchema = z.enum(['global', 'current', 'projects']);
 
 export const ScopeNodeSchema = z.object({
   id: z.string(),
   label: z.string(),
   scope: z.enum(['global', 'project']),
+  section: ScopeSectionSchema,
   rootPath: z.string(),
   artifacts: z.array(ArtifactSchema),
   artifactCount: z.number(),

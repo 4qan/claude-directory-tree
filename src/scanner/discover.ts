@@ -5,6 +5,7 @@ const SKIP_DIRS = new Set([
   'node_modules', '.git', '.svn', '.hg',
   'dist', 'build', 'out', '.next', '.nuxt',
   '__pycache__', '.venv', 'vendor',
+  'tests', '__tests__', 'test', 'spec',
 ]);
 
 export async function findClaudeDirs(rootDir: string): Promise<string[]> {
