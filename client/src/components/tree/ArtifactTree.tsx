@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useEffect, useRef, useState, useCallback } from 'react';
 import { useTree } from '@headless-tree/react';
 import { syncDataLoaderFeature } from '@headless-tree/core';
 import { Button } from '@/components/ui/button';
@@ -120,10 +120,11 @@ export function ArtifactTree({
     [filteredScopes]
   );
 
-  // Stable dataLoader reference to preserve expand state across filter updates
+  // Stable dataLoader reference to preserve expand state across filter updates.
+  // Return a fallback for missing items to prevent crashes when filters change.
   const dataLoader = useMemo(
     () => ({
-      getItem: (id: string) => items[id],
+      getItem: (id: string) => items[id] ?? { nodeKind: 'root' as const },
       getChildren: (id: string) => children[id] ?? [],
     }),
     [items, children]
@@ -134,17 +135,56 @@ export function ArtifactTree({
     getItemName: (item) => {
       const d = item.getItemData();
       if (d.nodeKind === 'scope') return d.label;
-      if (d.nodeKind === 'category') return TYPE_LABELS[d.type];
+      if (d.nodeKind === 'category') return d.label ?? TYPE_LABELS[d.type];
       if (d.nodeKind === 'leaf') return d.name;
       return 'root';
     },
     isItemFolder: (item) => item.getItemData().nodeKind !== 'leaf',
     dataLoader,
-    initialState: { expandedItems: filteredScopes.map((s) => s.id) },
+    initialState: { expandedItems: [] },
     features: [syncDataLoaderFeature],
   });
 
+  // Rebuild tree when data changes (useTree only calls rebuildTree on mount)
+  const prevDataRef = useRef(dataLoader);
+  useEffect(() => {
+    if (prevDataRef.current !== dataLoader) {
+      prevDataRef.current = dataLoader;
+      tree.rebuildTree();
+    }
+  }, [dataLoader, tree]);
+
+  // Auto-expand all folders when a filter is active, collapse when cleared
   const hasActiveFilters = Boolean(query || typeFilter);
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    if (hasActiveFilters) {
+      const allFolderIds = Object.keys(items).filter(
+        (id) => items[id].nodeKind !== 'leaf'
+      );
+      tree.applySubStateUpdate('expandedItems', () => allFolderIds);
+      setIsExpanded(true);
+    } else {
+      tree.applySubStateUpdate('expandedItems', () => []);
+      setIsExpanded(false);
+    }
+    tree.rebuildTree();
+  }, [hasActiveFilters, items, filteredScopes, tree]);
+
+  const handleToggleExpand = useCallback(() => {
+    if (isExpanded) {
+      tree.applySubStateUpdate('expandedItems', () => []);
+      setIsExpanded(false);
+    } else {
+      const allFolderIds = Object.keys(items).filter(
+        (id) => items[id].nodeKind !== 'leaf'
+      );
+      tree.applySubStateUpdate('expandedItems', () => allFolderIds);
+      setIsExpanded(true);
+    }
+    tree.rebuildTree();
+  }, [isExpanded, items, tree]);
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -204,23 +244,68 @@ export function ArtifactTree({
         </div>
       )}
 
-      {/* Tree */}
+      {/* Tree bar + tree */}
       {!isLoading && !error && filteredScopes.length > 0 && (
-        <div
-          {...tree.getContainerProps()}
-          className="flex-1 overflow-y-auto px-2 py-2 outline-none"
-        >
-          {tree.getItems().map((item) => (
-            <div
-              key={item.getId()}
-              style={{ paddingLeft: item.getItemMeta().level * 16 }}
-              {...item.getProps()}
-            >
-              <TreeItem item={item} />
-            </div>
-          ))}
+        <div className="flex items-center justify-between px-4 pt-3 pb-1">
+          <button
+            type="button"
+            onClick={handleToggleExpand}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {isExpanded ? 'Collapse all' : 'Expand all'}
+          </button>
+          <span className="text-xs text-muted-foreground">
+            {filteredScopes.length} {filteredScopes.length === 1 ? 'scope' : 'scopes'}
+          </span>
         </div>
       )}
+      {!isLoading && !error && filteredScopes.length > 0 && (() => {
+        const treeItems = tree.getItems();
+        let lastSection: string | null = null;
+
+        return (
+          <div
+            {...tree.getContainerProps()}
+            className="flex-1 overflow-y-auto px-2 py-2 outline-none"
+          >
+            {treeItems.map((item) => {
+              const data = item.getItemData();
+              let sectionHeader: React.ReactNode = null;
+
+              if (data.nodeKind === 'scope') {
+                const section = data.section;
+                if (section !== lastSection) {
+                  lastSection = section;
+                  const sectionLabels: Record<string, string> = {
+                    current: 'Current Project',
+                    projects: 'Other Projects',
+                  };
+                  if (section !== 'global' && sectionLabels[section]) {
+                    sectionHeader = (
+                      <div key={`section-${section}`} className="flex items-center gap-2 px-2 pt-4 pb-1">
+                        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{sectionLabels[section]}</span>
+                        <div className="flex-1 border-t border-border" />
+                      </div>
+                    );
+                  }
+                }
+              }
+
+              return (
+                <div key={item.getId()}>
+                  {sectionHeader}
+                  <div
+                    style={{ paddingLeft: item.getItemMeta().level * 16 }}
+                    {...item.getProps()}
+                  >
+                    <TreeItem item={item} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
     </div>
   );
 }

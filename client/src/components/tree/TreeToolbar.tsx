@@ -24,7 +24,7 @@ export function TreeToolbar({
   isLoading,
 }: TreeToolbarProps) {
   return (
-    <div className="sticky top-0 z-10 bg-background border-b border-border px-6 py-3 flex items-center gap-3">
+    <div className="bg-background border-b border-border px-6 py-3 flex items-center gap-3">
       <div className="relative flex-1">
         <Input
           type="text"

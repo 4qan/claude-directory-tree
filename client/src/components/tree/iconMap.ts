@@ -1,5 +1,5 @@
 import { Bot, Terminal, Zap, Link, FileText, Box, Webhook, BookOpen, FileCode, HelpCircle } from 'lucide-react';
-import type { ArtifactType } from '@/lib/types';
+import type { ArtifactType, McpScope } from '@/lib/types';
 import type { LucideIcon } from 'lucide-react';
 
 export const ICON_MAP: Record<ArtifactType, LucideIcon> = {
@@ -26,4 +26,10 @@ export const TYPE_LABELS: Record<ArtifactType, string> = {
   memory: 'Memory',
   plan: 'Plan files',
   unknown: 'Unknown',
+};
+
+export const MCP_SCOPE_LABELS: Record<McpScope, string> = {
+  project: 'Project MCPs',
+  local: 'Local MCPs',
+  user: 'User MCPs',
 };

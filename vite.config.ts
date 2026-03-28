@@ -14,6 +14,11 @@ export default defineConfig({
       '@': resolve(__dirname, 'client/src'),
     },
   },
+  server: {
+    proxy: {
+      '/api': 'http://localhost:3737',
+    },
+  },
   build: {
     outDir: 'dist',
     emptyOutDir: true,

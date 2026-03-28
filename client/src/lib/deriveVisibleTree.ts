@@ -21,17 +21,17 @@ function filterArtifacts(
   typeFilter: ArtifactType | null
 ): Artifact[] {
   return artifacts.flatMap((artifact) => {
-    const children = artifact.children
+    const children = artifact.children && artifact.children.length > 0
       ? filterArtifacts(artifact.children, q, typeFilter)
       : undefined;
 
-    // Category/plugin node with surviving children: keep it
+    // Parent node with surviving children: keep it
     if (children && children.length > 0) {
       return [{ ...artifact, children }];
     }
 
-    // Category/plugin node with no surviving children: drop it
-    if (artifact.children && (!children || children.length === 0)) {
+    // Parent node with no surviving children: drop it
+    if (children && children.length === 0) {
       return [];
     }
 

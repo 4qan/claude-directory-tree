@@ -13,7 +13,7 @@ export function App() {
     setState('loading');
     setError(null);
     try {
-      const res = await fetch('/api/scan');
+      const res = await fetch('/api/scan', { cache: 'no-store' });
       if (!res.ok) throw new Error('scan failed');
       const json = await res.json();
       setData(json);
@@ -28,10 +28,10 @@ export function App() {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <header className="fixed top-0 left-0 p-6 z-20">
+      <header className="px-6 pt-6 pb-2">
         <h1 className="text-xl font-semibold text-foreground">Claude Directory Tree</h1>
       </header>
-      <main className="flex-1 flex flex-col pt-16">
+      <main className="flex-1 flex flex-col">
         <ArtifactTree
           scopes={data?.scopes ?? []}
           query={query}
