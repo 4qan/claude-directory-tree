@@ -32,15 +32,15 @@
 
 ### File Operations
 
-- [ ] **OPS-01**: User can click an artifact to open it in their system editor
+- [x] **OPS-01**: User can click an artifact to open it in their system editor
 - [ ] **OPS-02**: User can right-click an artifact to see a context menu with type-specific actions
 - [ ] **OPS-03**: User can navigate the tree with keyboard (arrow keys, enter to open, esc to close menu)
-- [ ] **OPS-04**: User can copy an artifact from one project to another (cmd+c/v or context menu)
-- [ ] **OPS-05**: User can move an artifact from one project to another
-- [ ] **OPS-06**: User can promote a project-local artifact to global scope
-- [ ] **OPS-07**: User can demote a global artifact to a specific project's local scope
-- [ ] **OPS-08**: Copy/move operations detect conflicts and prompt before overwriting
-- [ ] **OPS-09**: File operations use atomic writes to prevent corruption of settings.json and other config files
+- [x] **OPS-04**: User can copy an artifact from one project to another (cmd+c/v or context menu)
+- [x] **OPS-05**: User can move an artifact from one project to another
+- [x] **OPS-06**: User can promote a project-local artifact to global scope
+- [x] **OPS-07**: User can demote a global artifact to a specific project's local scope
+- [x] **OPS-08**: Copy/move operations detect conflicts and prompt before overwriting
+- [x] **OPS-09**: File operations use atomic writes to prevent corruption of settings.json and other config files
 
 ### Artifact Summary
 
@@ -97,15 +97,15 @@
 | TREE-06 | Phase 2 | Complete |
 | TREE-07 | Phase 2 | Complete |
 | TREE-08 | Phase 2 | Complete |
-| OPS-01 | Phase 3 | Pending |
+| OPS-01 | Phase 3 | Complete |
 | OPS-02 | Phase 3 | Pending |
 | OPS-03 | Phase 3 | Pending |
-| OPS-04 | Phase 3 | Pending |
-| OPS-05 | Phase 3 | Pending |
-| OPS-06 | Phase 3 | Pending |
-| OPS-07 | Phase 3 | Pending |
-| OPS-08 | Phase 3 | Pending |
-| OPS-09 | Phase 3 | Pending |
+| OPS-04 | Phase 3 | Complete |
+| OPS-05 | Phase 3 | Complete |
+| OPS-06 | Phase 3 | Complete |
+| OPS-07 | Phase 3 | Complete |
+| OPS-08 | Phase 3 | Complete |
+| OPS-09 | Phase 3 | Complete |
 | SUMM-01 | Phase 3 | Pending |
 
 **Coverage:**
