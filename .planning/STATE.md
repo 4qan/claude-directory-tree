@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 01-foundation-03-PLAN.md (all tasks done, human-verify approved)
-last_updated: "2026-03-28T15:47:26.613Z"
+stopped_at: Phase 2 context gathered
+last_updated: "2026-03-28T16:05:12.281Z"
 progress:
-  total_phases: 3
+  total_phases: 4
   completed_phases: 1
   total_plans: 3
   completed_plans: 3
@@ -70,6 +70,10 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: Two separate tsup configs: cli entry gets shebang banner from tsup config (not source file), server entry does not
 - [Phase 01-foundation]: Static asset path in bundled CLI must use process.cwd() anchor, not import.meta.url, because tsup inlines server code into dist/cli.js
 
+### Roadmap Evolution
+
+- Phase 4 added: Plugin Distribution — Claude Code plugin (/tree command) and npm package for frictionless install
+
 ### Pending Todos
 
 None yet.
@@ -81,6 +85,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T15:47:10.064Z
-Stopped at: Completed 01-foundation-03-PLAN.md (all tasks done, human-verify approved)
-Resume file: None
+Last session: 2026-03-28T16:05:12.279Z
+Stopped at: Phase 2 context gathered
+Resume file: .planning/phases/02-tree-view/02-CONTEXT.md
