@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Phase 2 UI-SPEC approved
-last_updated: "2026-03-28T17:20:52.820Z"
+stopped_at: Completed 02-02-PLAN.md
+last_updated: "2026-03-28T17:31:05.029Z"
 progress:
   total_phases: 4
   completed_phases: 1
   total_plans: 6
-  completed_plans: 3
+  completed_plans: 5
 ---
 
 # Project State
@@ -48,6 +48,7 @@ Plan: 2 of 3
 *Updated after each plan completion*
 | Phase 01-foundation P01 | 5 | 2 tasks | 26 files |
 | Phase 01-foundation P03 | 8 | 2 tasks | 16 files |
+| Phase 02-tree-view P02 | 18 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,9 @@ Recent decisions affecting current work:
 - [Phase 02-tree-view Plan 01]: lucide-react v1 exports icons as React.forwardRef objects (typeof === 'object'), not plain functions — check $$typeof for valid React component detection
 - [Phase 02-tree-view Plan 01]: Client types use plain TypeScript union types (no Zod) — server validates, client trusts API responses
 - [Phase 02-tree-view Plan 01]: vitest @ alias resolves to client/src for consistent imports in both tests and production builds
+- [Phase 02-tree-view]: Native HTML select used for type filter (radix-ui/react-select not installed; native fallback is functionally equivalent)
+- [Phase 02-tree-view]: Category nodes introduced as intermediate level: ScopeNode artifacts grouped by ArtifactType with count
+- [Phase 02-tree-view]: nodeKind discriminant union type on TreeNodeData for type-safe scope/category/leaf rendering in TreeItem
 
 ### Roadmap Evolution
 
@@ -88,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T22:35:00.000Z
-Stopped at: Completed 02-01-PLAN.md
-Resume file: .planning/phases/02-tree-view/02-02-PLAN.md
+Last session: 2026-03-28T17:31:05.026Z
+Stopped at: Completed 02-02-PLAN.md
+Resume file: None
