@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: "Completed 01-foundation-03-PLAN.md (checkpoint:human-verify Task 3 pending)"
-last_updated: "2026-03-28T15:39:16.561Z"
+stopped_at: Completed 01-foundation-03-PLAN.md (all tasks done, human-verify approved)
+last_updated: "2026-03-28T15:47:26.613Z"
 progress:
   total_phases: 3
   completed_phases: 1
@@ -67,6 +67,8 @@ Recent decisions affecting current work:
 - [Phase 01-foundation]: shadcn components installed manually (offline) - functionally equivalent to npx shadcn add
 - [Phase 01-foundation]: createServer/startServer split: createServer() for test injection without port binding, startServer() for production
 - [Phase 01-foundation]: CORS only registered in NODE_ENV=development, not production (SPA served by same Fastify instance)
+- [Phase 01-foundation]: Two separate tsup configs: cli entry gets shebang banner from tsup config (not source file), server entry does not
+- [Phase 01-foundation]: Static asset path in bundled CLI must use process.cwd() anchor, not import.meta.url, because tsup inlines server code into dist/cli.js
 
 ### Pending Todos
 
@@ -79,6 +81,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T15:39:16.559Z
-Stopped at: Completed 01-foundation-03-PLAN.md (checkpoint:human-verify Task 3 pending)
+Last session: 2026-03-28T15:47:10.064Z
+Stopped at: Completed 01-foundation-03-PLAN.md (all tasks done, human-verify approved)
 Resume file: None

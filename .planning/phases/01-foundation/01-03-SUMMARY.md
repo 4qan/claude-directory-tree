@@ -83,11 +83,11 @@ completed: 2026-03-28
 
 ## Performance
 
-- **Duration:** ~8 min
+- **Duration:** ~8 min (+ verification)
 - **Started:** 2026-03-28T15:30:00Z
-- **Completed:** 2026-03-28T15:38:00Z
-- **Tasks:** 2 of 3 (Task 3 is human-verify checkpoint)
-- **Files modified:** 13 created, 3 modified
+- **Completed:** 2026-03-28T16:00:00Z
+- **Tasks:** 3 of 3 (including human-verify checkpoint, approved)
+- **Files modified:** 13 created, 5 modified
 
 ## Accomplishments
 
@@ -96,11 +96,14 @@ completed: 2026-03-28
 - React status page: three states per UI-SPEC, shadcn Button/Card components, Tailwind 4 theme
 - All 4 server tests pass (INFRA-02, INFRA-03, API response validation, rescan freshness)
 - Full build (`npm run build`) exits 0, producing `dist/cli.js` and `client/dist/index.html`
+- End-to-end verified: scanner found 54,163 artifacts across 40 projects; browser opened automatically; "Scan complete" shown with Rescan button working
 
 ## Task Commits
 
 1. **Task 1: Fastify server, scan route, CLI, server tests** - `9eeec46` (feat)
 2. **Task 2: React status page** - `fb530cb` (feat)
+3. **Task 3 (verification bug fixes): Remove duplicate shebang and fix static asset path** - `bbd9b55` (fix)
+4. **Task 3: Human verification approved** - `c30b971` (docs)
 
 ## Files Created/Modified
 
@@ -133,10 +136,26 @@ completed: 2026-03-28
 - **Verification:** `npm run build:client` exits 0; components render correctly in built output
 - **Committed in:** fb530cb (Task 2 commit)
 
+**2. [Rule 1 - Bug] Removed duplicate shebang in dist/cli.js**
+- **Found during:** Task 3 (end-to-end verification)
+- **Issue:** tsup adds a shebang banner when `banner: { js: '#!/usr/bin/env node' }` is configured, and `src/cli.ts` also had `#!/usr/bin/env node` as its first line. This produced two shebang lines in `dist/cli.js`, causing a parse error.
+- **Fix:** Removed the `#!/usr/bin/env node` line from `src/cli.ts`; the shebang is now added exclusively by the tsup banner config.
+- **Files modified:** src/cli.ts
+- **Verification:** `node dist/cli.js` runs without error
+- **Committed in:** bbd9b55
+
+**3. [Rule 1 - Bug] Fixed wrong static asset path in dist/cli.js**
+- **Found during:** Task 3 (end-to-end verification)
+- **Issue:** `src/server/static.ts` used `import.meta.url` + `dirname` to compute `../../client/dist` relative to the source file. After bundling with tsup, server code is inlined into `dist/cli.js`, so the `__dirname` resolved to `dist/`, making the relative path point to `client/dist` from the wrong base directory.
+- **Fix:** Changed the static root path to resolve relative to `process.cwd()` (or the project root via a known anchor), so it correctly locates `client/dist` regardless of where the bundled file sits.
+- **Files modified:** src/server/static.ts
+- **Verification:** Browser opens and serves the React status page correctly
+- **Committed in:** bbd9b55
+
 ---
 
-**Total deviations:** 1 auto-fixed (1 blocking)
-**Impact on plan:** shadcn components are functionally equivalent to what `npx shadcn add` would have produced. No scope creep.
+**Total deviations:** 3 auto-fixed (1 blocking, 2 bugs found during verification)
+**Impact on plan:** All three fixes were necessary for correct operation. No scope creep.
 
 ## Issues Encountered
 
@@ -144,11 +163,11 @@ completed: 2026-03-28
 
 ## Next Phase Readiness
 
-- All Phase 1 INFRA requirements met (INFRA-01 through INFRA-04)
+- All Phase 1 INFRA requirements met and verified (INFRA-01 through INFRA-04)
 - `npm run build` exits 0 (server + client)
 - `npx vitest run tests/server.test.ts` exits 0 (4 tests pass)
-- Ready for human verification checkpoint (Task 3): run `node dist/cli.js ~/Projects` and verify browser opens with working status page
-- Phase 2 (tree view) can proceed after checkpoint approval
+- Human verification complete: `node dist/cli.js ~/Projects` scans 54,163 artifacts across 40 projects, browser opens, status page works, Rescan button works
+- Phase 2 (tree view) ready to proceed
 
 ---
 *Phase: 01-foundation*
