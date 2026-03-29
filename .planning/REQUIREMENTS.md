@@ -46,6 +46,17 @@
 
 - [x] **SUMM-01**: User can see a quick summary of what each artifact does (extracted from frontmatter/description) in a detail pane or similar UI element
 
+### Directory View Toggle
+
+- [ ] **VIEW-01**: User can toggle between flat scope view and directory-hierarchy view that mirrors the real filesystem structure
+- [ ] **VIEW-02**: Non-Claude folders on the path to a project render as plain folder nodes with no artifacts
+- [ ] **VIEW-03**: User's view preference (flat vs directory) persists across sessions via localStorage
+
+### Plugin Toggle
+
+- [ ] **PLUG-01**: User can click a toggle on a plugin to enable/disable it, writing to settings.json enabledPlugins
+- [ ] **PLUG-02**: Plugin enabled/disabled state reflects the current value in settings.json
+
 ## v2 Requirements
 
 ### Real-time Updates
@@ -107,12 +118,17 @@
 | OPS-08 | Phase 3 | Complete |
 | OPS-09 | Phase 3 | Complete |
 | SUMM-01 | Phase 3 | Complete |
+| VIEW-01 | Phase 3.1 | Pending |
+| VIEW-02 | Phase 3.1 | Pending |
+| VIEW-03 | Phase 3.1 | Pending |
+| PLUG-01 | Phase 3.1 | Pending |
+| PLUG-02 | Phase 3.1 | Pending |
 
 **Coverage:**
-- v1 requirements: 26 total
-- Mapped to phases: 26
+- v1 requirements: 31 total
+- Mapped to phases: 31
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-28*
-*Last updated: 2026-03-28 after roadmap creation*
+*Last updated: 2026-03-30 after Phase 3.1 planning*

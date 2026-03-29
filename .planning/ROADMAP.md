@@ -14,7 +14,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Foundation** - Working npx binary, artifact scanner, and server with typed REST API (completed 2026-03-28)
 - [x] **Phase 2: Tree View** - Read-only artifact tree with search, filter, refresh, and scope labels (completed 2026-03-28)
-- [ ] **Phase 3: Operations** - File copy/move/promote/demote, context menu, keyboard nav, and artifact summaries
+- [x] **Phase 3: Operations** - File copy/move/promote/demote, context menu, keyboard nav, and artifact summaries
+- [ ] **Phase 3.1: Directory View Toggle & Plugin Enable/Disable** - Flat/hierarchy view toggle and plugin on/off from UI (INSERTED)
 - [ ] **Phase 4: Plugin Distribution** - Claude Code plugin (/tree command) and npm package for frictionless install
 
 ## Phase Details
@@ -71,9 +72,26 @@ Plans:
 - [ ] 03-03-PLAN.md — Context menu with flyout submenu, conflict dialog, Copy Path action, operation wiring to server API
 - [ ] 03-04-PLAN.md — Keyboard navigation (Cmd+C/V, Shift+F10, Cmd+F, Tab cycling), focus management, human verification
 
+### Phase 03.1: Directory View Toggle & Plugin Enable/Disable (INSERTED)
+
+**Goal**: Users can switch between flat scope view and filesystem hierarchy view, and toggle plugins on/off directly from the tree UI
+**Depends on**: Phase 3
+**Requirements**: VIEW-01, VIEW-02, VIEW-03, PLUG-01, PLUG-02
+**Success Criteria** (what must be TRUE):
+  1. User can toggle between flat view (current) and directory-hierarchy view that mirrors the real filesystem structure
+  2. Non-Claude folders on the path to a project render as plain folders with no artifacts
+  3. User's view preference (flat vs directory) persists across sessions
+  4. User can click a toggle on a plugin to enable/disable it, writing to ~/.claude/settings.json enabledPlugins
+  5. Plugin enabled/disabled state reflects the current value in settings.json
+**Plans:** 2 plans
+
+Plans:
+- [ ] 03.1-01-PLAN.md — Data layer: buildDirectoryItemMaps function, TreeNodeData folder type, toggle-plugin server endpoint, shared schemas, client API, tests
+- [ ] 03.1-02-PLAN.md — UI wiring: view toggle in tree bar, folder node rendering, plugin toggle in ContextMenu and DetailPanel, human verification
+
 ### Phase 4: Plugin Distribution
 **Goal**: Users can install once and launch with `/tree` in Claude Code or `npx claude-directory-tree` from any terminal
-**Depends on**: Phase 3
+**Depends on**: Phase 3.1
 **Requirements**: TBD
 **Success Criteria** (what must be TRUE):
   1. `/tree` command in Claude Code starts the server and opens the browser
@@ -84,11 +102,12 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 → 2 → 3 → 4
+Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 4
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation | 3/3 | Complete   | 2026-03-28 |
 | 2. Tree View | 3/3 | Complete   | 2026-03-28 |
-| 3. Operations | 3/4 | In Progress|  |
+| 3. Operations | 4/4 | Complete   | 2026-03-29 |
+| 3.1 View Toggle & Plugin Toggle | 0/2 | Planning complete | - |
 | 4. Plugin Distribution | 0/? | Not started | - |
