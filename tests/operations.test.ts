@@ -411,10 +411,11 @@ describe('POST /api/operations/* (OPS-01 to OPS-09)', () => {
 
   // --- POST /api/operations/demote ---
 
-  it('demote: copies global artifact to project .claude/{typeDir}/ and removes source', async () => {
+  it('demote: copies global artifact to project {typeDir}/ and removes source', async () => {
     const { server } = await makeServer();
     const srcDir = await makeTmpDir();
     tmpDirs.push(srcDir);
+    // targetProjectDir simulates scope.rootPath which already points to the .claude directory
     const targetProjectDir = await makeTmpDir();
     tmpDirs.push(targetProjectDir);
     const srcFile = path.join(srcDir, 'mycommand.md');
@@ -436,8 +437,8 @@ describe('POST /api/operations/* (OPS-01 to OPS-09)', () => {
     expect(body.success).toBe(true);
     // Source removed
     await expect(fs.access(srcFile)).rejects.toThrow();
-    // Dest exists in project .claude/commands/
-    const expectedDest = path.join(targetProjectDir, '.claude', 'commands', 'mycommand.md');
+    // Dest exists in targetProjectDir/commands/ (no extra .claude nesting)
+    const expectedDest = path.join(targetProjectDir, 'commands', 'mycommand.md');
     await expect(fs.access(expectedDest)).resolves.toBeUndefined();
   });
 
