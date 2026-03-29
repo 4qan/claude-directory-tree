@@ -3,10 +3,10 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-03-29T16:59:27.749Z"
+stopped_at: Phase 3.1 context gathered
+last_updated: "2026-03-29T19:00:40.567Z"
 progress:
-  total_phases: 4
+  total_phases: 5
   completed_phases: 3
   total_plans: 10
   completed_plans: 10
@@ -93,6 +93,7 @@ Recent decisions affecting current work:
 ### Roadmap Evolution
 
 - Phase 4 added: Plugin Distribution — Claude Code plugin (/tree command) and npm package for frictionless install
+- Phase 03.1 inserted after Phase 3: Directory view toggle and plugin enable/disable (URGENT)
 
 ### Pending Todos
 
@@ -105,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-28T21:59:37.589Z
-Stopped at: Completed 03-03-PLAN.md
-Resume file: None
+Last session: 2026-03-29T19:00:40.564Z
+Stopped at: Phase 3.1 context gathered
+Resume file: .planning/phases/03.1-directory-view-toggle-and-plugin-enable-disable/03.1-CONTEXT.md
