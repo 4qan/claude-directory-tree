@@ -21,30 +21,30 @@ function filterArtifacts(
   typeFilter: ArtifactType | null
 ): Artifact[] {
   return artifacts.flatMap((artifact) => {
+    // Check if this artifact itself matches
+    const nameMatch = !q || artifact.name.toLowerCase().includes(q);
+    const typeMatch = !typeFilter || artifact.type === typeFilter;
+    const selfMatch = nameMatch && typeMatch;
+
     const children = artifact.children && artifact.children.length > 0
       ? filterArtifacts(artifact.children, q, typeFilter)
       : undefined;
 
-    // Parent node with surviving children: keep it
-    if (children && children.length > 0) {
-      return [{ ...artifact, children }];
-    }
-
-    // Parent node with no surviving children: drop it
-    if (children && children.length === 0) {
+    // Parent node: keep if it matches itself OR has surviving children
+    if (artifact.children && artifact.children.length > 0) {
+      if (selfMatch) return [{ ...artifact, children: children ?? [] }];
+      if (children && children.length > 0) return [{ ...artifact, children }];
       return [];
     }
 
     // Leaf artifact: apply both filters (AND logic)
-    const nameMatch = !q || artifact.name.toLowerCase().includes(q);
-    const typeMatch = !typeFilter || artifact.type === typeFilter;
-    return nameMatch && typeMatch ? [artifact] : [];
+    return selfMatch ? [artifact] : [];
   });
 }
 
 function countAll(artifacts: Artifact[]): number {
   return artifacts.reduce((sum, a) => {
-    if (a.children) return sum + countAll(a.children);
+    if (a.children && a.children.length > 0) return sum + countAll(a.children);
     return sum + 1;
   }, 0);
 }

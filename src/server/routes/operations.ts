@@ -11,6 +11,8 @@ import {
   MoveRequestSchema,
   PromoteRequestSchema,
   DemoteRequestSchema,
+  PreflightRequestSchema,
+  PreflightResultSchema,
   DescribeRequestSchema,
   OperationResultSchema,
   DescribeResultSchema,
@@ -248,7 +250,8 @@ export async function operationsRoutes(server: FastifyInstance, _targetDir: stri
 
       const copySource = getCopySource(sourcePath, artifactType);
       const typeDir = ARTIFACT_TYPE_DIR_MAP[artifactType] ?? '';
-      const destinationDir = path.join(targetProjectDir, '.claude', typeDir);
+      // targetProjectDir is the .claude directory path (scope.rootPath from client)
+      const destinationDir = path.join(targetProjectDir, typeDir);
 
       const result = await performCopy(sourcePath, destinationDir, artifactType, overwrite);
 
@@ -257,6 +260,30 @@ export async function operationsRoutes(server: FastifyInstance, _targetDir: stri
       }
 
       return reply.send(result);
+    }
+  );
+
+  // POST /api/operations/preflight
+  s.post(
+    '/api/operations/preflight',
+    {
+      schema: {
+        body: PreflightRequestSchema,
+        response: { 200: PreflightResultSchema },
+      },
+    },
+    async (req, reply) => {
+      const { sourcePath, artifactType } = req.body;
+      const copySource = getCopySource(sourcePath, artifactType);
+      const refWarnings = await scanReferences(copySource);
+
+      // Add semantic warnings for special types
+      const typeWarning = WARNING_MESSAGES[artifactType];
+      if (typeWarning) {
+        refWarnings.push({ type: 'semantic', message: typeWarning });
+      }
+
+      return reply.send({ warnings: refWarnings });
     }
   );
 
@@ -271,7 +298,31 @@ export async function operationsRoutes(server: FastifyInstance, _targetDir: stri
     },
     async (req, reply) => {
       try {
-        const raw = await fs.readFile(req.body.path, 'utf-8');
+        const reqPath = req.body.path;
+
+        // MCP config: path has #fragment pointing to server name in JSON
+        if (reqPath.includes('#') && reqPath.endsWith('.json#' + reqPath.split('#').pop())) {
+          const [filePath, serverName] = reqPath.split('#');
+          const raw = await fs.readFile(filePath, 'utf-8');
+          const json = JSON.parse(raw);
+
+          // Try mcpServers.{name} (mcp.json format) or projects.*.mcpServers.{name} (.claude.json)
+          const entry = json.mcpServers?.[serverName]
+            ?? json[serverName]
+            ?? Object.values(json.projects ?? {}).find((p: any) => p?.mcpServers?.[serverName])?.mcpServers?.[serverName];
+
+          if (entry) {
+            if (entry.url) {
+              return reply.send({ description: `${entry.type ?? 'HTTP'} server: ${entry.url}` });
+            }
+            const cmd = entry.command ?? '';
+            const args = (entry.args ?? []).join(' ');
+            return reply.send({ description: `Runs: ${cmd} ${args}`.trim() });
+          }
+          return reply.send({ description: null });
+        }
+
+        const raw = await fs.readFile(reqPath, 'utf-8');
         const { data, content } = matter(raw);
 
         if (data.description) {

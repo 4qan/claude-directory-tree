@@ -9,6 +9,7 @@ import { TYPE_LABELS } from '@/components/tree/iconMap';
 import { deriveVisibleTree } from '@/lib/deriveVisibleTree';
 import { openInEditor, copyArtifact, TYPE_DIR_MAP } from '@/lib/operationsApi';
 import { ContextMenu } from '@/components/ContextMenu';
+import { ArtifactDetailPanel } from '@/components/ArtifactDetailPanel';
 import { showToast } from '@/components/Toast';
 import type { ArtifactType, ScopeNode, Artifact } from '@/lib/types';
 import type { TreeNodeData } from '@/components/tree/TreeItem';
@@ -23,6 +24,8 @@ interface ArtifactTreeProps {
   isLoading: boolean;
   error: string | null;
   onSelectedArtifactChange?: (artifact: Artifact | null) => void;
+  selectedArtifact?: Artifact | null;
+  onCloseDetail?: () => void;
 }
 
 function buildItemMaps(filteredScopes: ScopeNode[]): {
@@ -157,6 +160,8 @@ export function ArtifactTree({
   isLoading,
   error,
   onSelectedArtifactChange,
+  selectedArtifact: externalSelectedArtifact,
+  onCloseDetail,
 }: ArtifactTreeProps) {
   const filteredScopes = useMemo(
     () => deriveVisibleTree(scopes, query, typeFilter),
@@ -180,17 +185,15 @@ export function ArtifactTree({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const typeFilterRef = useRef<HTMLSelectElement>(null);
 
-  // Derive selected artifact from selection state
-  const selectedArtifact = useMemo((): Artifact | null => {
-    if (selectedIds.length !== 1) return null;
-    const d = items[selectedIds[0]];
-    return d?.nodeKind === 'leaf' ? (d as Artifact & { nodeKind: 'leaf' }) : null;
-  }, [selectedIds, items]);
-
-  // Notify parent when selectedArtifact changes
+  // Notify parent only when a leaf is selected (not when navigating to folders)
   useEffect(() => {
-    onSelectedArtifactChange?.(selectedArtifact);
-  }, [selectedArtifact, onSelectedArtifactChange]);
+    if (selectedIds.length !== 1) return;
+    const d = items[selectedIds[0]];
+    if (d?.nodeKind === 'leaf') {
+      onSelectedArtifactChange?.(d as Artifact & { nodeKind: 'leaf' });
+    }
+    // Non-leaf selection: don't notify (keeps previous preview open)
+  }, [selectedIds, items, onSelectedArtifactChange]);
 
   // Context menu state
   const [contextMenu, setContextMenu] = useState<{
@@ -241,12 +244,17 @@ export function ArtifactTree({
     dataLoader,
     initialState: { expandedItems: [], selectedItems: [], focusedItem: null },
     state: { selectedItems: selectedIds, focusedItem: focusedId },
-    setSelectedItems: setSelectedIds,
+    setSelectedItems: (ids: string[]) => {
+      // Don't let headless-tree clear selection on blur
+      if (ids.length === 0 && selectedIds.length > 0) return;
+      setSelectedIds(ids);
+    },
     setFocusedItem: setFocusedId,
     onPrimaryAction: (item) => {
       const d = item.getItemData();
       if (d.nodeKind === 'leaf') {
-        openInEditor(d.absolutePath);
+        // Select only - Open in Editor is available via context menu
+        setSelectedIds([d.id]);
       }
     },
     features: [syncDataLoaderFeature, selectionFeature, hotkeysCoreFeature],
@@ -294,14 +302,26 @@ export function ArtifactTree({
   }, [isExpanded, items, tree]);
 
   const handleSelect = useCallback((data: TreeNodeData) => {
-    if (data.nodeKind === 'leaf') {
-      setSelectedIds([data.id]);
+    if (data.nodeKind !== 'root') {
+      // If panel was closed but same item clicked, re-notify parent
+      setSelectedIds((prev) => {
+        if (prev.length === 1 && prev[0] === data.id) {
+          // Same item - force re-notify by toggling
+          const d = items[data.id];
+          if (d?.nodeKind === 'leaf') {
+            onSelectedArtifactChange?.(d as Artifact & { nodeKind: 'leaf' });
+          }
+          return prev;
+        }
+        return [data.id];
+      });
     }
-  }, []);
+  }, [items, onSelectedArtifactChange]);
 
   const handleDoubleClick = useCallback((data: TreeNodeData) => {
     if (data.nodeKind === 'leaf') {
-      openInEditor(data.absolutePath);
+      // Select only - Open in Editor is available via context menu
+      setSelectedIds([data.id]);
     }
   }, []);
 
@@ -468,78 +488,97 @@ export function ArtifactTree({
         </div>
       )}
 
-      {/* Tree bar + tree */}
-      {!isLoading && !error && filteredScopes.length > 0 && (
-        <div className="flex items-center justify-between px-4 pt-3 pb-1">
-          <button
-            type="button"
-            onClick={handleToggleExpand}
-            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            {isExpanded ? 'Collapse all' : 'Expand all'}
-          </button>
-          <span className="text-xs text-muted-foreground">
-            {filteredScopes.length} {filteredScopes.length === 1 ? 'scope' : 'scopes'}
-          </span>
-        </div>
-      )}
-      {!isLoading && !error && filteredScopes.length > 0 && (() => {
-        const treeItems = tree.getItems();
-        let lastSection: string | null = null;
+      {/* Content area: tree + detail panel side by side, both scroll independently */}
+      <div className="flex flex-1 min-h-0 overflow-hidden">
+        {/* Tree column */}
+        <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-y-auto">
+          {/* Tree bar */}
+          {!isLoading && !error && filteredScopes.length > 0 && (
+            <div className="flex items-center justify-between px-4 pt-3 pb-1">
+              <button
+                type="button"
+                onClick={handleToggleExpand}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {isExpanded ? 'Collapse all' : 'Expand all'}
+              </button>
+              <span className="text-xs text-muted-foreground">
+                {filteredScopes.length} {filteredScopes.length === 1 ? 'scope' : 'scopes'}
+              </span>
+            </div>
+          )}
+          {!isLoading && !error && filteredScopes.length > 0 && (() => {
+            const treeItems = tree.getItems();
+            let lastSection: string | null = null;
 
-        return (
-          <div
-            ref={treeContainerRef}
-            {...containerProps}
-            onKeyDown={handleTreeKeyDown}
-            className="flex-1 overflow-y-auto px-2 py-2 outline-none"
-          >
-            {treeItems.map((item) => {
-              const data = item.getItemData();
-              let sectionHeader: React.ReactNode = null;
+            return (
+              <div
+                ref={treeContainerRef}
+                {...containerProps}
+                onKeyDown={handleTreeKeyDown}
+                className="flex-1 overflow-y-auto px-2 py-2 outline-none"
+              >
+                {treeItems.map((item) => {
+                  const data = item.getItemData();
+                  let sectionHeader: React.ReactNode = null;
 
-              if (data.nodeKind === 'scope') {
-                const section = data.section;
-                if (section !== lastSection) {
-                  lastSection = section;
-                  const sectionLabels: Record<string, string> = {
-                    current: 'Current Project',
-                    projects: 'Other Projects',
-                  };
-                  if (section !== 'global' && sectionLabels[section]) {
-                    sectionHeader = (
-                      <div key={`section-${section}`} className="flex items-center gap-2 px-2 pt-4 pb-1">
-                        <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{sectionLabels[section]}</span>
-                        <div className="flex-1 border-t border-border" />
-                      </div>
-                    );
+                  if (data.nodeKind === 'scope') {
+                    const section = data.section;
+                    if (section !== lastSection) {
+                      lastSection = section;
+                      const sectionLabels: Record<string, string> = {
+                        current: 'Current Project',
+                        projects: 'Other Projects',
+                      };
+                      if (section !== 'global' && sectionLabels[section]) {
+                        sectionHeader = (
+                          <div key={`section-${section}`} className="flex items-center gap-2 px-2 pt-4 pb-1">
+                            <span className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{sectionLabels[section]}</span>
+                            <div className="flex-1 border-t border-border" />
+                          </div>
+                        );
+                      }
+                    }
                   }
-                }
-              }
 
-              const isLeafSelected = data.nodeKind === 'leaf' && selectedIds.includes(data.id);
+                  const isNodeSelected = data.nodeKind !== 'root' && selectedIds.includes(data.id);
 
-              return (
-                <div key={item.getId()}>
-                  {sectionHeader}
-                  <div
-                    style={{ paddingLeft: item.getItemMeta().level * 16 }}
-                    {...item.getProps()}
-                  >
-                    <TreeItem
-                      item={item}
-                      isSelected={isLeafSelected}
-                      onSelect={handleSelect}
-                      onDoubleClick={handleDoubleClick}
-                      onContextMenu={handleContextMenu}
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        );
-      })()}
+                  return (
+                    <div key={item.getId()}>
+                      {sectionHeader}
+                      <div
+                        style={{ paddingLeft: item.getItemMeta().level * 16 }}
+                        {...item.getProps()}
+                      >
+                        <TreeItem
+                          item={item}
+                          isSelected={isNodeSelected}
+                          onSelect={handleSelect}
+                          onDoubleClick={handleDoubleClick}
+                          onContextMenu={handleContextMenu}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })()}
+        </div>
+
+        {/* Detail panel */}
+        {externalSelectedArtifact && (
+          <ArtifactDetailPanel
+            artifact={externalSelectedArtifact}
+            scopes={scopes}
+            onClose={() => {
+              onCloseDetail?.();
+            }}
+            onRefresh={onRefresh}
+          />
+        )}
+      </div>
+
       {contextMenu && (
         <ContextMenu
           x={contextMenu.x}

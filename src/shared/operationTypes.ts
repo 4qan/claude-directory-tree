@@ -58,13 +58,22 @@ export const DemoteRequestSchema = z.object({
   overwrite: z.boolean().default(false),
 });
 
-export const DescribeRequestSchema = z.object({
-  path: z.string(),
-});
-
 export const PreflightWarningSchema = z.object({
   type: z.enum(['reference', 'semantic', 'state']),
   message: z.string(),
+});
+
+export const PreflightRequestSchema = z.object({
+  sourcePath: z.string(),
+  artifactType: z.string(),
+});
+
+export const PreflightResultSchema = z.object({
+  warnings: z.array(PreflightWarningSchema),
+});
+
+export const DescribeRequestSchema = z.object({
+  path: z.string(),
 });
 
 export const OperationResultSchema = z.object({
@@ -85,6 +94,8 @@ export type CopyRequest = z.infer<typeof CopyRequestSchema>;
 export type MoveRequest = z.infer<typeof MoveRequestSchema>;
 export type PromoteRequest = z.infer<typeof PromoteRequestSchema>;
 export type DemoteRequest = z.infer<typeof DemoteRequestSchema>;
+export type PreflightRequest = z.infer<typeof PreflightRequestSchema>;
+export type PreflightResult = z.infer<typeof PreflightResultSchema>;
 export type DescribeRequest = z.infer<typeof DescribeRequestSchema>;
 export type OperationResult = z.infer<typeof OperationResultSchema>;
 export type DescribeResult = z.infer<typeof DescribeResultSchema>;

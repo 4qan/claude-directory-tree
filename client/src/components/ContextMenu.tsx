@@ -21,11 +21,12 @@ import {
 } from '@/lib/operationsApi';
 import { showToast } from '@/components/Toast';
 import { ConflictDialog } from '@/components/ConflictDialog';
+import { TYPE_LABELS_SINGULAR } from '@/components/tree/iconMap';
 import type { TreeNodeData } from '@/components/tree/TreeItem';
 import type { ScopeNode } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
-const BLOCKED_TYPES = ['hook', 'mcp-config'];
+const BLOCKED_TYPES = ['hook', 'mcp-config', 'plugin', 'plan', 'memory', 'claude-md'];
 
 interface ContextMenuProps {
   x: number;
@@ -61,6 +62,18 @@ export function ContextMenu({
   const [activeFlyout, setActiveFlyout] = useState<FlyoutType>(null);
   const [flyoutFilter, setFlyoutFilter] = useState('');
   const [conflictState, setConflictState] = useState<ConflictState | null>(null);
+  const flyoutCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const scheduleFlyoutClose = useCallback(() => {
+    flyoutCloseTimer.current = setTimeout(() => setActiveFlyout(null), 150);
+  }, []);
+
+  const cancelFlyoutClose = useCallback(() => {
+    if (flyoutCloseTimer.current) {
+      clearTimeout(flyoutCloseTimer.current);
+      flyoutCloseTimer.current = null;
+    }
+  }, []);
 
   // Project scopes (exclude global for copy/move/demote targets)
   const projectScopes = scopes.filter((s) => s.scope === 'project');
@@ -71,14 +84,17 @@ export function ContextMenu({
         )
       : projectScopes;
 
-  // Viewport edge flipping
+  // Viewport edge clamping
   useEffect(() => {
     if (!menuRef.current) return;
     const rect = menuRef.current.getBoundingClientRect();
+    const pad = 8;
     let top = y;
     let left = x;
-    if (y + rect.height > window.innerHeight) top = y - rect.height;
-    if (x + rect.width > window.innerWidth) left = x - rect.width;
+    if (top + rect.height > window.innerHeight - pad) top = window.innerHeight - rect.height - pad;
+    if (left + rect.width > window.innerWidth - pad) left = window.innerWidth - rect.width - pad;
+    if (top < pad) top = pad;
+    if (left < pad) left = pad;
     setMenuPos({ top, left });
   }, [x, y]);
 
@@ -130,12 +146,13 @@ export function ContextMenu({
         }
 
         if (result.success) {
+          const typeLabel = TYPE_LABELS_SINGULAR[artifact.type] ?? artifact.type;
           if (action === 'copy') {
-            showToast(`Copied ${artifact.name} to ${scope.label}`);
+            showToast(`Copied the ${typeLabel} "${artifact.name}" to ${scope.label}`);
           } else if (action === 'move') {
-            showToast(`Moved ${artifact.name} to ${scope.label}. Claude will see this in the next session.`);
+            showToast(`Moved the ${typeLabel} "${artifact.name}" to ${scope.label}. Claude will see this in the next session.`);
           } else {
-            showToast(`Demoted ${artifact.name} to ${scope.label}. Claude will see this in the next session.`);
+            showToast(`Demoted the ${typeLabel} "${artifact.name}" to ${scope.label}. Claude will see this in the next session.`);
           }
           if (result.warnings) {
             result.warnings.forEach((w: { type: string; message: string }) => showToast(w.message, 'info', 6000));
@@ -170,7 +187,7 @@ export function ContextMenu({
       }
 
       if (result.success) {
-        showToast(`Promoted ${artifact.name} to Global. Claude will see this in the next session.`);
+        showToast(`Promoted the ${TYPE_LABELS_SINGULAR[artifact.type] ?? artifact.type} "${artifact.name}" to Global. Claude will see this in the next session.`);
         if (result.warnings) {
           result.warnings.forEach((w: { type: string; message: string }) => showToast(w.message, 'info', 6000));
         }
@@ -221,16 +238,28 @@ export function ContextMenu({
     (type: FlyoutType, triggerEl: HTMLElement) => {
       setActiveFlyout(type);
       setFlyoutFilter('');
-      // Flyout positioning: to the right of menu, align with trigger item
       if (menuRef.current) {
         const menuRect = menuRef.current.getBoundingClientRect();
         const triggerRect = triggerEl.getBoundingClientRect();
-        const flyoutWidth = 200;
+        const flyoutWidth = 220;
+        const flyoutMaxHeight = Math.min(400, window.innerHeight * 0.6);
+        const pad = 8;
+
+        // Horizontal: prefer right, flip left if needed
         let flyoutLeft = menuRect.right + 2;
-        if (flyoutLeft + flyoutWidth > window.innerWidth) {
+        if (flyoutLeft + flyoutWidth > window.innerWidth - pad) {
           flyoutLeft = menuRect.left - flyoutWidth - 2;
         }
-        setFlyoutPos({ top: triggerRect.top, left: flyoutLeft });
+        if (flyoutLeft < pad) flyoutLeft = pad;
+
+        // Vertical: align with trigger, clamp to viewport
+        let flyoutTop = triggerRect.top;
+        if (flyoutTop + flyoutMaxHeight > window.innerHeight - pad) {
+          flyoutTop = window.innerHeight - flyoutMaxHeight - pad;
+        }
+        if (flyoutTop < pad) flyoutTop = pad;
+
+        setFlyoutPos({ top: flyoutTop, left: flyoutLeft });
       }
     },
     []
@@ -248,13 +277,14 @@ export function ContextMenu({
             icon={<ExternalLink size={14} />}
             label="Open in Editor"
             onClick={handleOpenInEditor}
+            onMouseEnter={() => setActiveFlyout(null)}
           />
           <MenuItemRow
             icon={<Clipboard size={14} />}
             label="Copy Path"
             onClick={handleCopyPath}
+            onMouseEnter={() => setActiveFlyout(null)}
           />
-          <Separator />
           <FlyoutItemRow
             icon={<Copy size={14} />}
             label="Copy to..."
@@ -273,7 +303,6 @@ export function ContextMenu({
             onHover={(el) => !isBlocked && openFlyout('move', el)}
             onLeave={() => {}}
           />
-          <Separator />
           {showPromote && (
             <MenuItemRow
               icon={<ArrowUpCircle size={14} />}
@@ -281,6 +310,7 @@ export function ContextMenu({
               disabled={isBlocked}
               disabledTooltip="Managed in config file"
               onClick={!isBlocked ? handlePromote : undefined}
+              onMouseEnter={() => setActiveFlyout(null)}
             />
           )}
           {showDemote && (
@@ -332,9 +362,10 @@ export function ContextMenu({
     <>
       <div
         ref={menuRef}
-        className="fixed z-40 min-w-[180px] bg-background border border-border rounded-md shadow-lg py-1 text-sm"
+        className="fixed z-50 min-w-[180px] bg-popover text-popover-foreground rounded-md border border-border shadow-xl py-1 text-sm"
         style={{ top: menuPos.top, left: menuPos.left }}
-        onMouseLeave={() => setActiveFlyout(null)}
+        onMouseLeave={scheduleFlyoutClose}
+        onMouseEnter={cancelFlyoutClose}
       >
         {menuItems()}
       </div>
@@ -342,11 +373,14 @@ export function ContextMenu({
       {activeFlyout && (
         <div
           ref={flyoutRef}
-          className="fixed z-40 min-w-[180px] max-w-[240px] bg-background border border-border rounded-md shadow-lg py-1 text-sm"
-          style={{ top: flyoutPos.top, left: flyoutPos.left }}
+          className="fixed z-50 min-w-[180px] max-w-[240px] bg-popover text-popover-foreground rounded-md border border-border shadow-xl py-1 text-sm flex flex-col"
+          style={{ top: flyoutPos.top, left: flyoutPos.left, maxHeight: 'min(400px, 60vh)' }}
+          onMouseEnter={cancelFlyoutClose}
+          onMouseLeave={scheduleFlyoutClose}
+          onWheel={(e) => e.stopPropagation()}
         >
           {projectScopes.length > 8 && (
-            <div className="px-2 pb-1">
+            <div className="px-2 pb-1 shrink-0">
               <input
                 className="w-full h-7 px-2 text-xs bg-muted border border-border rounded-sm outline-none focus:ring-1 focus:ring-ring"
                 placeholder="Filter projects..."
@@ -359,11 +393,12 @@ export function ContextMenu({
           {filteredProjectScopes.length === 0 ? (
             <div className="px-3 py-1.5 text-xs text-muted-foreground">No projects</div>
           ) : (
-            filteredProjectScopes.map((scope) => (
+            <div className="overflow-y-auto overscroll-contain">
+            {filteredProjectScopes.map((scope) => (
               <button
                 key={scope.id}
                 type="button"
-                className="w-full flex items-center px-3 h-8 text-left hover:bg-muted transition-colors"
+                className="w-full flex items-center px-3 h-8 text-left hover:bg-accent hover:text-accent-foreground transition-colors rounded-sm"
                 onClick={() =>
                   handleFlyoutItemClick(
                     scope,
@@ -377,7 +412,8 @@ export function ContextMenu({
               >
                 <span className="truncate">{scope.label}</span>
               </button>
-            ))
+            ))}
+            </div>
           )}
         </div>
       )}
@@ -405,21 +441,23 @@ interface MenuItemRowProps {
   onClick?: () => void;
   disabled?: boolean;
   disabledTooltip?: string;
+  onMouseEnter?: () => void;
 }
 
-function MenuItemRow({ icon, label, onClick, disabled, disabledTooltip }: MenuItemRowProps) {
+function MenuItemRow({ icon, label, onClick, disabled, disabledTooltip, onMouseEnter }: MenuItemRowProps) {
   return (
     <button
       type="button"
       className={cn(
-        'w-full flex items-center gap-2 px-3 h-8 text-left transition-colors',
+        'w-full flex items-center gap-2 px-3 h-8 text-left transition-colors rounded-sm',
         disabled
           ? 'opacity-50 cursor-not-allowed'
-          : 'hover:bg-muted cursor-default'
+          : 'hover:bg-accent hover:text-accent-foreground cursor-default'
       )}
       aria-disabled={disabled}
       title={disabled ? disabledTooltip : undefined}
       onClick={disabled ? undefined : onClick}
+      onMouseEnter={onMouseEnter}
     >
       <span className="text-muted-foreground shrink-0">{icon}</span>
       <span className="truncate">{label}</span>
@@ -449,12 +487,12 @@ function FlyoutItemRow({
   return (
     <div
       className={cn(
-        'w-full flex items-center gap-2 px-3 h-8 transition-colors',
+        'w-full flex items-center gap-2 px-3 h-8 transition-colors rounded-sm',
         disabled
           ? 'opacity-50 cursor-not-allowed'
           : isActive
-            ? 'bg-muted cursor-default'
-            : 'hover:bg-muted cursor-default'
+            ? 'bg-accent text-accent-foreground cursor-default'
+            : 'hover:bg-accent hover:text-accent-foreground cursor-default'
       )}
       aria-disabled={disabled}
       title={disabled ? disabledTooltip : undefined}

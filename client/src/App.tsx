@@ -30,27 +30,23 @@ export function App() {
   useEffect(() => { scan(); }, [scan]);
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <header className="px-6 pt-6 pb-2">
+    <div className="h-screen flex flex-col overflow-hidden bg-background">
+      <header className="px-6 pt-6 pb-2 shrink-0">
         <h1 className="text-xl font-semibold text-foreground">Claude Directory Tree</h1>
       </header>
-      <main className="flex-1 flex min-h-0">
-        <div className="flex-1 flex flex-col min-h-0">
-          <ArtifactTree
-            scopes={data?.scopes ?? []}
-            query={query}
-            typeFilter={typeFilter}
-            onQueryChange={setQuery}
-            onTypeFilterChange={setTypeFilter}
-            onRefresh={scan}
-            isLoading={state === 'loading'}
-            error={state === 'error' ? (error ?? 'Failed to scan directory.') : null}
-            onSelectedArtifactChange={setSelectedArtifact}
-          />
-        </div>
-        <ArtifactDetailPanel
-          artifact={selectedArtifact}
-          onClose={() => setSelectedArtifact(null)}
+      <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        <ArtifactTree
+          scopes={data?.scopes ?? []}
+          query={query}
+          typeFilter={typeFilter}
+          onQueryChange={setQuery}
+          onTypeFilterChange={setTypeFilter}
+          onRefresh={scan}
+          isLoading={state === 'loading'}
+          error={state === 'error' ? (error ?? 'Failed to scan directory.') : null}
+          onSelectedArtifactChange={setSelectedArtifact}
+          selectedArtifact={selectedArtifact}
+          onCloseDetail={() => setSelectedArtifact(null)}
         />
       </main>
       <ToastContainer />

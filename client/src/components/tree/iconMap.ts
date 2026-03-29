@@ -28,6 +28,19 @@ export const TYPE_LABELS: Record<ArtifactType, string> = {
   unknown: 'Unknown',
 };
 
+export const TYPE_LABELS_SINGULAR: Record<ArtifactType, string> = {
+  agent: 'Agent',
+  command: 'Command',
+  skill: 'Skill',
+  'mcp-config': 'MCP Server',
+  'claude-md': 'CLAUDE.md',
+  plugin: 'Plugin',
+  hook: 'Hook',
+  memory: 'Memory',
+  plan: 'Plan',
+  unknown: 'Unknown',
+};
+
 export const MCP_SCOPE_LABELS: Record<McpScope, string> = {
   project: 'Project MCPs',
   local: 'Local MCPs',

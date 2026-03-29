@@ -28,7 +28,11 @@ export function TreeItem({ item, isSelected, onSelect, onDoubleClick, onContextM
   if (data.nodeKind === 'scope') {
     return (
       <div
-        className="flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default hover:bg-muted"
+        className={cn(
+          'flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default',
+          isSelected ? 'bg-primary/20' : 'hover:bg-primary/8'
+        )}
+        onClick={() => onSelect?.(data)}
         onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e, data); }}
       >
         <ChevronRight
@@ -46,7 +50,11 @@ export function TreeItem({ item, isSelected, onSelect, onDoubleClick, onContextM
   if (data.nodeKind === 'category') {
     return (
       <div
-        className="flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default hover:bg-muted"
+        className={cn(
+          'flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default',
+          isSelected ? 'bg-primary/20' : 'hover:bg-primary/8'
+        )}
+        onClick={() => onSelect?.(data)}
         onContextMenu={(e) => { e.preventDefault(); onContextMenu?.(e, data); }}
       >
         <ChevronRight
@@ -67,8 +75,10 @@ export function TreeItem({ item, isSelected, onSelect, onDoubleClick, onContextM
     return (
       <div
         className={cn(
-          'flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none',
-          isSelected && 'bg-primary/10'
+          'flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none',
+          isSelected
+            ? 'bg-accent text-accent-foreground'
+            : 'hover:bg-muted'
         )}
         onClick={() => onSelect?.(data)}
         onDoubleClick={() => onDoubleClick?.(data)}

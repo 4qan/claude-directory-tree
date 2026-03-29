@@ -10,7 +10,7 @@ let toastId = 0;
 // Shared state via module-level subscribers (avoids context provider)
 const subscribers = new Set<(toast: ToastItem) => void>();
 
-export function showToast(message: string, type: ToastType = 'success', duration = 3000) {
+export function showToast(message: string, type: ToastType = 'success', duration = 5000) {
   const toast: ToastItem = { id: ++toastId, message, type, duration };
   subscribers.forEach((fn) => fn(toast));
 }

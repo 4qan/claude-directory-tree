@@ -87,6 +87,17 @@ export async function demoteArtifact(
   return res.json();
 }
 
+type PreflightResult = { warnings: { type: string; message: string }[] };
+
+export async function preflightCheck(sourcePath: string, artifactType: string): Promise<PreflightResult> {
+  const res = await fetch('/api/operations/preflight', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ sourcePath, artifactType }),
+  });
+  return res.json();
+}
+
 export async function describeArtifact(path: string): Promise<DescribeResult> {
   const res = await fetch('/api/operations/describe', {
     method: 'POST',
