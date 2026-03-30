@@ -8,22 +8,16 @@ import {
   ArrowRight,
   ArrowUpCircle,
   ArrowDownCircle,
+  ToggleLeft,
+  ToggleRight,
 } from 'lucide-react';
-import { ICON_MAP, TYPE_LABELS, TYPE_LABELS_SINGULAR } from '@/components/tree/iconMap';
+import { ICON_MAP, TYPE_LABELS_SINGULAR } from '@/components/tree/iconMap';
 import { cn } from '@/lib/utils';
-import {
-  describeArtifact,
-  openInEditor,
-  copyPathToClipboard,
-  copyArtifact,
-  moveArtifact,
-  promoteArtifact,
-  demoteArtifact,
-  preflightCheck,
-  TYPE_DIR_MAP,
-} from '@/lib/operationsApi';
+import { describeArtifact, openInEditor, copyPathToClipboard, togglePlugin } from '@/lib/operationsApi';
 import { showToast } from '@/components/Toast';
 import { ConflictDialog } from '@/components/ConflictDialog';
+import { WarningDialog } from '@/components/WarningDialog';
+import { useArtifactOperations } from '@/hooks/useArtifactOperations';
 import { Button } from '@/components/ui/button';
 import type { Artifact, ScopeNode } from '@/lib/types';
 
@@ -38,16 +32,7 @@ interface ArtifactDetailPanelProps {
 
 export function ArtifactDetailPanel({ artifact, scopes, onClose, onRefresh }: ArtifactDetailPanelProps) {
   const [description, setDescription] = useState<string | null>(null);
-  const [conflictState, setConflictState] = useState<{
-    artifactName: string;
-    targetProject: string;
-    retryFn: () => Promise<void>;
-  } | null>(null);
-  const [warningState, setWarningState] = useState<{
-    warnings: { type: string; message: string }[];
-    actionLabel: string;
-    onConfirm: () => Promise<void>;
-  } | null>(null);
+  const ops = useArtifactOperations({ onRefresh, onClose });
 
   useEffect(() => {
     if (!artifact) {
@@ -74,17 +59,6 @@ export function ArtifactDetailPanel({ artifact, scopes, onClose, onRefresh }: Ar
   const isBlocked = BLOCKED_TYPES.includes(artifact.type);
   const projectScopes = scopes.filter((s) => s.scope === 'project');
 
-  // Run preflight check before any operation. If warnings exist, show confirmation dialog.
-  // If no warnings, execute immediately.
-  const withPreflight = async (actionLabel: string, execute: () => Promise<void>) => {
-    const { warnings } = await preflightCheck(artifact.absolutePath, artifact.type);
-    if (warnings.length > 0) {
-      setWarningState({ warnings, actionLabel, onConfirm: execute });
-    } else {
-      await execute();
-    }
-  };
-
   const handleCopyPath = async () => {
     await copyPathToClipboard(artifact.absolutePath);
     showToast('Path copied to clipboard');
@@ -95,98 +69,25 @@ export function ArtifactDetailPanel({ artifact, scopes, onClose, onRefresh }: Ar
   };
 
   const handleRevealInFinder = async () => {
-    // For directory types, open the directory; for files, open the parent
-    const dirPath = ['skill', 'plugin'].includes(artifact.type)
-      ? artifact.absolutePath.substring(0, artifact.absolutePath.lastIndexOf('/'))
-      : artifact.absolutePath.substring(0, artifact.absolutePath.lastIndexOf('/'));
+    const dirPath = artifact.absolutePath.substring(0, artifact.absolutePath.lastIndexOf('/'));
     await openInEditor(dirPath);
   };
 
-  const executeCopy = async (scope: ScopeNode, overwrite = false) => {
-    const typeDir = TYPE_DIR_MAP[artifact.type] ?? '';
-    const destDir = scope.rootPath + (typeDir ? '/' + typeDir : '');
-    const result = await copyArtifact(artifact.absolutePath, destDir, artifact.type, overwrite);
-    if (result.conflict) {
-      setConflictState({
-        artifactName: artifact.name,
-        targetProject: scope.label,
-        retryFn: () => executeCopy(scope, true),
-      });
-    } else if (result.success) {
-      showToast(`Copied the ${typeLabel} "${artifact.name}" to ${scope.label}`);
+  const handleTogglePlugin = async () => {
+    if (!artifact || artifact.type !== 'plugin' || artifact.enabled === undefined) return;
+    const newEnabled = !artifact.enabled;
+    const parentScope = scopes.find((s) =>
+      s.artifacts.some((a) => a.id === artifact.id || a.children?.some((c) => c.id === artifact.id))
+    );
+    if (!parentScope) return;
+    const settingsPath = parentScope.rootPath + '/settings.json';
+    const result = await togglePlugin(artifact.name, settingsPath, newEnabled);
+    if (result.success) {
+      showToast(newEnabled ? 'Plugin enabled' : 'Plugin disabled', 'success');
       onRefresh();
-    } else if (result.error) {
-      showToast(`Failed: ${result.error}`, 'error', 6000);
+    } else {
+      showToast(`Failed to update plugin: ${result.error}`, 'error', 6000);
     }
-  };
-
-  const handleCopyTo = (scope: ScopeNode) => {
-    withPreflight(`Copy to ${scope.label}`, () => executeCopy(scope));
-  };
-
-  const executeMove = async (scope: ScopeNode, overwrite = false) => {
-    const typeDir = TYPE_DIR_MAP[artifact.type] ?? '';
-    const destDir = scope.rootPath + (typeDir ? '/' + typeDir : '');
-    const result = await moveArtifact(artifact.absolutePath, destDir, artifact.type, overwrite);
-    if (result.conflict) {
-      setConflictState({
-        artifactName: artifact.name,
-        targetProject: scope.label,
-        retryFn: () => executeMove(scope, true),
-      });
-    } else if (result.success) {
-      showToast(`Moved the ${typeLabel} "${artifact.name}" to ${scope.label}`);
-      onRefresh();
-      onClose();
-    } else if (result.error) {
-      showToast(`Failed: ${result.error}`, 'error', 6000);
-    }
-  };
-
-  const handleMoveTo = (scope: ScopeNode) => {
-    withPreflight(`Move to ${scope.label}`, () => executeMove(scope));
-  };
-
-  const executePromote = async (overwrite = false) => {
-    const result = await promoteArtifact(artifact.absolutePath, artifact.type, overwrite);
-    if (result.conflict) {
-      setConflictState({
-        artifactName: artifact.name,
-        targetProject: 'Global',
-        retryFn: () => executePromote(true),
-      });
-    } else if (result.success) {
-      showToast(`Promoted the ${typeLabel} "${artifact.name}" to Global`);
-      onRefresh();
-      onClose();
-    } else if (result.error) {
-      showToast(`Failed: ${result.error}`, 'error', 6000);
-    }
-  };
-
-  const handlePromote = () => {
-    withPreflight('Promote to Global', () => executePromote());
-  };
-
-  const executeDemote = async (scope: ScopeNode, overwrite = false) => {
-    const result = await demoteArtifact(artifact.absolutePath, scope.rootPath, artifact.type, overwrite);
-    if (result.conflict) {
-      setConflictState({
-        artifactName: artifact.name,
-        targetProject: scope.label,
-        retryFn: () => executeDemote(scope, true),
-      });
-    } else if (result.success) {
-      showToast(`Demoted the ${typeLabel} "${artifact.name}" to ${scope.label}`);
-      onRefresh();
-      onClose();
-    } else if (result.error) {
-      showToast(`Failed: ${result.error}`, 'error', 6000);
-    }
-  };
-
-  const handleDemote = (scope: ScopeNode) => {
-    withPreflight(`Demote to ${scope.label}`, () => executeDemote(scope));
   };
 
   const showPromote = artifact.scope === 'project' && !isBlocked;
@@ -237,81 +138,66 @@ export function ArtifactDetailPanel({ artifact, scopes, onClose, onRefresh }: Ar
           <ActionButton icon={<ExternalLink size={14} />} label="Open in Editor" onClick={handleOpenInEditor} />
           <ActionButton icon={<FolderOpen size={14} />} label="Show in Folder" onClick={handleRevealInFinder} />
           <ActionButton icon={<Clipboard size={14} />} label="Copy Path" onClick={handleCopyPath} />
+          {artifact.type === 'plugin' && artifact.enabled !== undefined && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="flex items-center gap-2 justify-start h-8 text-sm"
+              onClick={handleTogglePlugin}
+            >
+              {artifact.enabled ? <ToggleLeft size={14} /> : <ToggleRight size={14} />}
+              {artifact.enabled ? 'Disable' : 'Enable'}
+            </Button>
+          )}
           {showCopyMove && (
             <>
               <DropdownAction
                 icon={<Copy size={14} />}
                 label="Copy to..."
                 scopes={projectScopes}
-                onSelect={(s) => handleCopyTo(s)}
+                onSelect={(s) => ops.copyTo(artifact, s)}
               />
               <DropdownAction
                 icon={<ArrowRight size={14} />}
                 label="Move to..."
                 scopes={projectScopes}
-                onSelect={(s) => handleMoveTo(s)}
+                onSelect={(s) => ops.moveTo(artifact, s)}
               />
             </>
           )}
           {showPromote && (
-            <ActionButton icon={<ArrowUpCircle size={14} />} label="Promote to Global" onClick={handlePromote} />
+            <ActionButton icon={<ArrowUpCircle size={14} />} label="Promote to Global" onClick={() => ops.promote(artifact)} />
           )}
           {showDemote && (
             <DropdownAction
               icon={<ArrowDownCircle size={14} />}
               label="Demote to Project"
               scopes={projectScopes}
-              onSelect={(s) => handleDemote(s)}
+              onSelect={(s) => ops.demoteTo(artifact, s)}
             />
           )}
         </div>
       </div>
 
-      {conflictState && (
+      {ops.conflictState && (
         <ConflictDialog
-          artifactName={conflictState.artifactName}
-          targetProject={conflictState.targetProject}
-          onKeep={() => setConflictState(null)}
+          artifactName={ops.conflictState.artifactName}
+          targetProject={ops.conflictState.targetProject}
+          onKeep={ops.clearConflict}
           onReplace={async () => {
-            await conflictState.retryFn();
-            setConflictState(null);
+            await ops.conflictState!.retryFn();
+            ops.clearConflict();
           }}
         />
       )}
 
-      {warningState && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-popover rounded-lg border border-border shadow-xl p-6 max-w-md w-full mx-4">
-            <h3 className="text-sm font-semibold mb-3">References detected</h3>
-            <p className="text-sm text-muted-foreground mb-3">
-              This artifact contains references that may not resolve correctly in the destination:
-            </p>
-            <ul className="text-sm text-muted-foreground mb-4 space-y-1.5">
-              {warningState.warnings.map((w, i) => (
-                <li key={i} className="flex gap-2">
-                  <span className="text-amber-500 shrink-0">&#9888;</span>
-                  <span className="font-mono text-xs break-all">{w.message}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" size="sm" onClick={() => setWarningState(null)}>
-                Cancel
-              </Button>
-              <Button
-                variant="default"
-                size="sm"
-                onClick={async () => {
-                  const fn = warningState.onConfirm;
-                  setWarningState(null);
-                  await fn();
-                }}
-              >
-                {warningState.actionLabel} anyway
-              </Button>
-            </div>
-          </div>
-        </div>
+      {ops.warningState && (
+        <WarningDialog
+          warnings={ops.warningState.warnings}
+          actionLabel={ops.warningState.actionLabel}
+          onCancel={ops.clearWarning}
+          onConfirm={ops.confirmWarning}
+        />
       )}
     </>
   );

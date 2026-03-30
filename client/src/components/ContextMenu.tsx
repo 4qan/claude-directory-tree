@@ -8,22 +8,22 @@ import {
   ArrowDownCircle,
   FolderOpen,
   ChevronRight,
+  ToggleLeft,
+  ToggleRight,
 } from 'lucide-react';
 import {
   TYPE_DIR_MAP,
-  copyArtifact,
-  moveArtifact,
-  promoteArtifact,
-  demoteArtifact,
   openInEditor,
   resolveCopyPath,
   copyPathToClipboard,
+  togglePlugin,
 } from '@/lib/operationsApi';
 import { showToast } from '@/components/Toast';
 import { ConflictDialog } from '@/components/ConflictDialog';
-import { TYPE_LABELS_SINGULAR } from '@/components/tree/iconMap';
+import { useArtifactOperations } from '@/hooks/useArtifactOperations';
+import { WarningDialog } from '@/components/WarningDialog';
 import type { TreeNodeData } from '@/components/tree/TreeItem';
-import type { ScopeNode } from '@/lib/types';
+import type { ScopeNode, Artifact } from '@/lib/types';
 import { cn } from '@/lib/utils';
 
 const BLOCKED_TYPES = ['hook', 'mcp-config', 'plugin', 'plan', 'memory', 'claude-md'];
@@ -37,12 +37,6 @@ interface ContextMenuProps {
   onClose: () => void;
   onRefresh: () => void;
 }
-
-type ConflictState = {
-  artifactName: string;
-  targetProject: string;
-  retryFn: () => Promise<void>;
-};
 
 type FlyoutType = 'copy' | 'move' | 'demote' | null;
 
@@ -61,8 +55,9 @@ export function ContextMenu({
   const [flyoutPos, setFlyoutPos] = useState({ top: 0, left: 0 });
   const [activeFlyout, setActiveFlyout] = useState<FlyoutType>(null);
   const [flyoutFilter, setFlyoutFilter] = useState('');
-  const [conflictState, setConflictState] = useState<ConflictState | null>(null);
   const flyoutCloseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const ops = useArtifactOperations({ onRefresh, onClose });
 
   const scheduleFlyoutClose = useCallback(() => {
     flyoutCloseTimer.current = setTimeout(() => setActiveFlyout(null), 150);
@@ -120,87 +115,20 @@ export function ContextMenu({
   }, [onClose]);
 
   const handleFlyoutItemClick = useCallback(
-    async (scope: ScopeNode, action: 'copy' | 'move' | 'demote') => {
+    (scope: ScopeNode, action: 'copy' | 'move' | 'demote') => {
       if (data.nodeKind !== 'leaf') return;
-      const artifact = data;
-      const typeDir = TYPE_DIR_MAP[artifact.type] ?? '';
-      const destinationDir = scope.rootPath + (typeDir ? '/' + typeDir : '');
-
-      const execute = async (overwrite = false) => {
-        let result;
-        if (action === 'copy') {
-          result = await copyArtifact(artifact.absolutePath, destinationDir, artifact.type, overwrite);
-        } else if (action === 'move') {
-          result = await moveArtifact(artifact.absolutePath, destinationDir, artifact.type, overwrite);
-        } else {
-          result = await demoteArtifact(artifact.absolutePath, scope.rootPath, artifact.type, overwrite);
-        }
-
-        if (result.conflict) {
-          setConflictState({
-            artifactName: artifact.name,
-            targetProject: scope.label,
-            retryFn: () => execute(true),
-          });
-          return;
-        }
-
-        if (result.success) {
-          const typeLabel = TYPE_LABELS_SINGULAR[artifact.type] ?? artifact.type;
-          if (action === 'copy') {
-            showToast(`Copied the ${typeLabel} "${artifact.name}" to ${scope.label}`);
-          } else if (action === 'move') {
-            showToast(`Moved the ${typeLabel} "${artifact.name}" to ${scope.label}. Claude will see this in the next session.`);
-          } else {
-            showToast(`Demoted the ${typeLabel} "${artifact.name}" to ${scope.label}. Claude will see this in the next session.`);
-          }
-          if (result.warnings) {
-            result.warnings.forEach((w: { type: string; message: string }) => showToast(w.message, 'info', 6000));
-          }
-          onRefresh();
-          onClose();
-        } else if (result.error) {
-          showToast(`Failed to ${action}: ${result.error}. Check terminal for details.`, 'error', 6000);
-          onClose();
-        }
-      };
-
-      await execute();
+      const artifact = data as Artifact & { nodeKind: 'leaf' };
+      if (action === 'copy') ops.copyTo(artifact, scope);
+      else if (action === 'move') ops.moveTo(artifact, scope);
+      else ops.demoteTo(artifact, scope);
     },
-    [data, onClose, onRefresh]
+    [data, ops]
   );
 
-  const handlePromote = useCallback(async () => {
+  const handlePromote = useCallback(() => {
     if (data.nodeKind !== 'leaf') return;
-    const artifact = data;
-
-    const execute = async (overwrite = false) => {
-      const result = await promoteArtifact(artifact.absolutePath, artifact.type, overwrite);
-
-      if (result.conflict) {
-        setConflictState({
-          artifactName: artifact.name,
-          targetProject: 'Global',
-          retryFn: () => execute(true),
-        });
-        return;
-      }
-
-      if (result.success) {
-        showToast(`Promoted the ${TYPE_LABELS_SINGULAR[artifact.type] ?? artifact.type} "${artifact.name}" to Global. Claude will see this in the next session.`);
-        if (result.warnings) {
-          result.warnings.forEach((w: { type: string; message: string }) => showToast(w.message, 'info', 6000));
-        }
-        onRefresh();
-        onClose();
-      } else if (result.error) {
-        showToast(`Failed to promote: ${result.error}. Check terminal for details.`, 'error', 6000);
-        onClose();
-      }
-    };
-
-    await execute();
-  }, [data, onClose, onRefresh]);
+    ops.promote(data as Artifact & { nodeKind: 'leaf' });
+  }, [data, ops]);
 
   const handleCopyPath = useCallback(async () => {
     let resolvedPath: string;
@@ -233,6 +161,24 @@ export function ContextMenu({
     }
     onClose();
   }, [data, onClose]);
+
+  const handleTogglePlugin = useCallback(async () => {
+    if (data.nodeKind !== 'leaf' || data.type !== 'plugin' || data.enabled === undefined) return;
+    const newEnabled = !data.enabled;
+    const parentScope = scopes.find((s) =>
+      s.artifacts.some((a) => a.id === data.id || a.children?.some((c) => c.id === data.id))
+    );
+    if (!parentScope) return;
+    const settingsPath = parentScope.rootPath + '/settings.json';
+    const result = await togglePlugin(data.name, settingsPath, newEnabled);
+    if (result.success) {
+      showToast(newEnabled ? 'Plugin enabled' : 'Plugin disabled', 'success');
+      onRefresh();
+    } else {
+      showToast(`Failed to update plugin: ${result.error}`, 'error', 6000);
+    }
+    onClose();
+  }, [data, scopes, onRefresh, onClose]);
 
   const openFlyout = useCallback(
     (type: FlyoutType, triggerEl: HTMLElement) => {
@@ -273,6 +219,17 @@ export function ContextMenu({
       const showDemote = data.scope === 'global';
       return (
         <>
+          {data.type === 'plugin' && data.enabled !== undefined && (
+            <>
+              <MenuItemRow
+                icon={data.enabled ? <ToggleLeft size={14} /> : <ToggleRight size={14} />}
+                label={data.enabled ? 'Disable plugin' : 'Enable plugin'}
+                onClick={handleTogglePlugin}
+                onMouseEnter={() => setActiveFlyout(null)}
+              />
+              <Separator />
+            </>
+          )}
           <MenuItemRow
             icon={<ExternalLink size={14} />}
             label="Open in Editor"
@@ -418,15 +375,24 @@ export function ContextMenu({
         </div>
       )}
 
-      {conflictState && (
+      {ops.conflictState && (
         <ConflictDialog
-          artifactName={conflictState.artifactName}
-          targetProject={conflictState.targetProject}
-          onKeep={() => setConflictState(null)}
+          artifactName={ops.conflictState.artifactName}
+          targetProject={ops.conflictState.targetProject}
+          onKeep={ops.clearConflict}
           onReplace={async () => {
-            await conflictState.retryFn();
-            setConflictState(null);
+            await ops.conflictState!.retryFn();
+            ops.clearConflict();
           }}
+        />
+      )}
+
+      {ops.warningState && (
+        <WarningDialog
+          warnings={ops.warningState.warnings}
+          actionLabel={ops.warningState.actionLabel}
+          onCancel={ops.clearWarning}
+          onConfirm={ops.confirmWarning}
         />
       )}
     </>
