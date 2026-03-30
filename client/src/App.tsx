@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { ArtifactTree } from '@/components/tree/ArtifactTree';
 import { ArtifactDetailPanel } from '@/components/ArtifactDetailPanel';
 import { ToastContainer } from '@/components/Toast';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import type { ScanResponse, ArtifactType, Artifact } from '@/lib/types';
 
 export function App() {
@@ -31,8 +32,9 @@ export function App() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden bg-background">
-      <header className="px-6 pt-6 pb-2 shrink-0">
+      <header className="px-6 pt-6 pb-2 shrink-0 flex items-center justify-between">
         <h1 className="text-xl font-semibold text-foreground">Claude Directory Tree</h1>
+        <ThemeToggle />
       </header>
       <main className="flex-1 flex flex-col min-h-0 overflow-hidden">
         <ArtifactTree
