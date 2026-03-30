@@ -144,3 +144,16 @@ export function resolveCopyPath(
 export async function copyPathToClipboard(resolvedPath: string): Promise<void> {
   await navigator.clipboard.writeText(resolvedPath);
 }
+
+export async function togglePlugin(
+  pluginName: string,
+  settingsPath: string,
+  enable: boolean
+): Promise<{ success: boolean; error?: string }> {
+  const res = await fetch('/api/operations/toggle-plugin', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ pluginName, settingsPath, enable }),
+  });
+  return res.json();
+}

@@ -504,3 +504,163 @@ describe('POST /api/operations/* (OPS-01 to OPS-09)', () => {
     expect(body.description).toBeNull();
   });
 });
+
+describe('POST /api/operations/toggle-plugin (PLUG-01, PLUG-02)', () => {
+  const servers: Awaited<ReturnType<typeof createServer>>[] = [];
+  const tmpDirs: string[] = [];
+
+  afterEach(async () => {
+    for (const s of servers) {
+      await s.close().catch(() => {});
+    }
+    servers.length = 0;
+    for (const d of tmpDirs) {
+      await fs.rm(d, { recursive: true, force: true }).catch(() => {});
+    }
+    tmpDirs.length = 0;
+  });
+
+  async function makeServer() {
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'toggle-plugin-test-'));
+    tmpDirs.push(tmpDir);
+    const server = await createServer(tmpDir);
+    servers.push(server);
+    return { server, tmpDir };
+  }
+
+  async function writeSettings(dir: string, content: object | string): Promise<string> {
+    const settingsPath = path.join(dir, 'settings.json');
+    const raw = typeof content === 'string' ? content : JSON.stringify(content, null, 2);
+    await fs.writeFile(settingsPath, raw);
+    return settingsPath;
+  }
+
+  // Test 1: enable=true adds pluginName to enabledPlugins array
+  it('enable=true adds pluginName to enabledPlugins, returns { success: true }', async () => {
+    const { server, tmpDir } = await makeServer();
+    const settingsPath = await writeSettings(tmpDir, { enabledPlugins: [] });
+
+    const res = await server.inject({
+      method: 'POST',
+      url: '/api/operations/toggle-plugin',
+      payload: { pluginName: 'my-plugin', settingsPath, enable: true },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.success).toBe(true);
+
+    const updated = JSON.parse(await fs.readFile(settingsPath, 'utf-8'));
+    expect(updated.enabledPlugins).toContain('my-plugin');
+  });
+
+  // Test 2: enable=false removes pluginName from enabledPlugins array
+  it('enable=false removes pluginName from enabledPlugins, returns { success: true }', async () => {
+    const { server, tmpDir } = await makeServer();
+    const settingsPath = await writeSettings(tmpDir, { enabledPlugins: ['my-plugin', 'other-plugin'] });
+
+    const res = await server.inject({
+      method: 'POST',
+      url: '/api/operations/toggle-plugin',
+      payload: { pluginName: 'my-plugin', settingsPath, enable: false },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.success).toBe(true);
+
+    const updated = JSON.parse(await fs.readFile(settingsPath, 'utf-8'));
+    expect(updated.enabledPlugins).not.toContain('my-plugin');
+    expect(updated.enabledPlugins).toContain('other-plugin');
+  });
+
+  // Test 3: Enabling already-enabled plugin is idempotent
+  it('enabling an already-enabled plugin produces no duplicate entry', async () => {
+    const { server, tmpDir } = await makeServer();
+    const settingsPath = await writeSettings(tmpDir, { enabledPlugins: ['my-plugin'] });
+
+    const res = await server.inject({
+      method: 'POST',
+      url: '/api/operations/toggle-plugin',
+      payload: { pluginName: 'my-plugin', settingsPath, enable: true },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.success).toBe(true);
+
+    const updated = JSON.parse(await fs.readFile(settingsPath, 'utf-8'));
+    const count = updated.enabledPlugins.filter((p: string) => p === 'my-plugin').length;
+    expect(count).toBe(1);
+  });
+
+  // Test 4: Disabling already-disabled plugin is idempotent
+  it('disabling an already-disabled plugin returns success with no error', async () => {
+    const { server, tmpDir } = await makeServer();
+    const settingsPath = await writeSettings(tmpDir, { enabledPlugins: ['other-plugin'] });
+
+    const res = await server.inject({
+      method: 'POST',
+      url: '/api/operations/toggle-plugin',
+      payload: { pluginName: 'my-plugin', settingsPath, enable: false },
+    });
+
+    expect(res.statusCode).toBe(200);
+    const body = JSON.parse(res.body);
+    expect(body.success).toBe(true);
+
+    const updated = JSON.parse(await fs.readFile(settingsPath, 'utf-8'));
+    expect(updated.enabledPlugins).not.toContain('my-plugin');
+  });
+
+  // Test 5: Returns 400 when enabledPlugins field is absent
+  it('returns 400 with error when settings.json has no enabledPlugins key', async () => {
+    const { server, tmpDir } = await makeServer();
+    const settingsPath = await writeSettings(tmpDir, { someOtherField: 'value' });
+
+    const res = await server.inject({
+      method: 'POST',
+      url: '/api/operations/toggle-plugin',
+      payload: { pluginName: 'my-plugin', settingsPath, enable: true },
+    });
+
+    expect(res.statusCode).toBe(400);
+    const body = JSON.parse(res.body);
+    expect(body.success).toBe(false);
+    expect(body.error).toMatch(/enabledPlugins/i);
+  });
+
+  // Test 6: Returns 400 when settings.json contains malformed JSON
+  it('returns 400 with error when settings.json is malformed JSON', async () => {
+    const { server, tmpDir } = await makeServer();
+    const settingsPath = await writeSettings(tmpDir, '{ invalid json, }');
+
+    const res = await server.inject({
+      method: 'POST',
+      url: '/api/operations/toggle-plugin',
+      payload: { pluginName: 'my-plugin', settingsPath, enable: true },
+    });
+
+    expect(res.statusCode).toBe(400);
+    const body = JSON.parse(res.body);
+    expect(body.success).toBe(false);
+    expect(body.error).toMatch(/not valid JSON/i);
+  });
+
+  // Test 7: Returns 400 when settings.json does not exist
+  it('returns 400 when settings.json does not exist at given path', async () => {
+    const { server, tmpDir } = await makeServer();
+    const nonExistentPath = path.join(tmpDir, 'nonexistent', 'settings.json');
+
+    const res = await server.inject({
+      method: 'POST',
+      url: '/api/operations/toggle-plugin',
+      payload: { pluginName: 'my-plugin', settingsPath: nonExistentPath, enable: true },
+    });
+
+    expect(res.statusCode).toBe(400);
+    const body = JSON.parse(res.body);
+    expect(body.success).toBe(false);
+    expect(body.error).toBeDefined();
+  });
+});

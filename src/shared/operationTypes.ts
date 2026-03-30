@@ -88,7 +88,21 @@ export const DescribeResultSchema = z.object({
   description: z.string().nullable(),
 });
 
+export const TogglePluginRequestSchema = z.object({
+  pluginName: z.string(),
+  settingsPath: z.string(),
+  enable: z.boolean(),
+});
+
+export const TogglePluginResultSchema = z.object({
+  success: z.boolean(),
+  error: z.string().optional(),
+});
+
 // Inferred types
+export type TogglePluginRequest = z.infer<typeof TogglePluginRequestSchema>;
+export type TogglePluginResult = z.infer<typeof TogglePluginResultSchema>;
+
 export type OpenRequest = z.infer<typeof OpenRequestSchema>;
 export type CopyRequest = z.infer<typeof CopyRequestSchema>;
 export type MoveRequest = z.infer<typeof MoveRequestSchema>;

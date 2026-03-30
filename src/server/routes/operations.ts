@@ -5,6 +5,7 @@ import path from 'node:path';
 import os from 'node:os';
 import open from 'open';
 import matter from 'gray-matter';
+import writeFileAtomic from 'write-file-atomic';
 import {
   OpenRequestSchema,
   CopyRequestSchema,
@@ -16,6 +17,8 @@ import {
   DescribeRequestSchema,
   OperationResultSchema,
   DescribeResultSchema,
+  TogglePluginRequestSchema,
+  TogglePluginResultSchema,
   ARTIFACT_TYPE_DIR_MAP,
   BLOCKED_TYPES,
   WARNING_MESSAGES,
@@ -284,6 +287,49 @@ export async function operationsRoutes(server: FastifyInstance, _targetDir: stri
       }
 
       return reply.send({ warnings: refWarnings });
+    }
+  );
+
+  // POST /api/operations/toggle-plugin
+  s.post(
+    '/api/operations/toggle-plugin',
+    {
+      schema: {
+        body: TogglePluginRequestSchema,
+        response: { 200: TogglePluginResultSchema, 400: TogglePluginResultSchema },
+      },
+    },
+    async (req, reply) => {
+      const { pluginName, settingsPath, enable } = req.body;
+
+      let raw: string;
+      try {
+        raw = await fs.readFile(settingsPath, 'utf-8');
+      } catch {
+        return reply.code(400).send({ success: false, error: 'settings.json not found' });
+      }
+
+      let settings: Record<string, unknown>;
+      try {
+        settings = JSON.parse(raw);
+      } catch {
+        return reply.code(400).send({ success: false, error: 'settings.json is not valid JSON' });
+      }
+
+      if (!settings.enabledPlugins || !Array.isArray(settings.enabledPlugins)) {
+        return reply.code(400).send({ success: false, error: 'enabledPlugins field not found' });
+      }
+
+      if (enable) {
+        if (!settings.enabledPlugins.includes(pluginName)) {
+          settings.enabledPlugins.push(pluginName);
+        }
+      } else {
+        settings.enabledPlugins = (settings.enabledPlugins as string[]).filter((p) => p !== pluginName);
+      }
+
+      await writeFileAtomic(settingsPath, JSON.stringify(settings, null, 2));
+      return reply.send({ success: true });
     }
   );
 
