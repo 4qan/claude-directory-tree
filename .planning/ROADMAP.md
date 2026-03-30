@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Foundation** - Working npx binary, artifact scanner, and server with typed REST API (completed 2026-03-28)
 - [x] **Phase 2: Tree View** - Read-only artifact tree with search, filter, refresh, and scope labels (completed 2026-03-28)
 - [x] **Phase 3: Operations** - File copy/move/promote/demote, context menu, keyboard nav, and artifact summaries
-- [ ] **Phase 3.1: Directory View Toggle & Plugin Enable/Disable** - Flat/hierarchy view toggle and plugin on/off from UI (INSERTED)
+- [x] **Phase 3.1: Directory View Toggle & Plugin Enable/Disable** - Flat/hierarchy view toggle and plugin on/off from UI (completed 2026-03-30) (INSERTED)
 - [ ] **Phase 4: Plugin Distribution** - Claude Code plugin (/tree command) and npm package for frictionless install
 
 ## Phase Details
@@ -109,5 +109,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 4
 | 1. Foundation | 3/3 | Complete   | 2026-03-28 |
 | 2. Tree View | 3/3 | Complete   | 2026-03-28 |
 | 3. Operations | 4/4 | Complete   | 2026-03-29 |
-| 3.1 View Toggle & Plugin Toggle | 0/2 | Planning complete | - |
+| 3.1 View Toggle & Plugin Toggle | 2/2 | Complete | 2026-03-30 |
 | 4. Plugin Distribution | 0/? | Not started | - |
