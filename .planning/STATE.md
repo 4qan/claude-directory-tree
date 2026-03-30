@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Completed 03.1-01-PLAN.md
-last_updated: "2026-03-30T05:53:59.972Z"
+stopped_at: "Checkpoint: awaiting human verify for 03.1-02"
+last_updated: "2026-03-30T05:59:25.463Z"
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 12
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -54,6 +54,7 @@ Plan: 1 of 2
 | Phase 03-operations P02 | 15 | 2 tasks | 7 files |
 | Phase 03-operations P03 | 3 | 2 tasks | 4 files |
 | Phase 03.1-directory-view-toggle-and-plugin-enable-disable P01 | 4 | 2 tasks | 7 files |
+| Phase 03.1-directory-view-toggle-and-plugin-enable-disable P02 | 18 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,8 @@ Recent decisions affecting current work:
 - [Phase 03-operations]: Category Copy Path resolves rootPath from parent scope by splitting category id on colon (scopeId:type pattern)
 - [Phase 03.1-directory-view-toggle-and-plugin-enable-disable]: Common ancestor computed across project directories (parent of .claude/), not rootPaths — single-project case starts at project dir
 - [Phase 03.1-directory-view-toggle-and-plugin-enable-disable]: buildDirectoryItemMaps is a standalone function; folder nodes use id pattern 'dir:/absolute/path'
+- [Phase 03.1-directory-view-toggle-and-plugin-enable-disable]: Section headers only in flat view; directory view uses folder hierarchy
+- [Phase 03.1-directory-view-toggle-and-plugin-enable-disable]: localStorage read in useState initializer to prevent flash of wrong view on mount
 
 ### Roadmap Evolution
 
@@ -109,6 +112,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T05:53:59.970Z
-Stopped at: Completed 03.1-01-PLAN.md
+Last session: 2026-03-30T05:59:25.461Z
+Stopped at: Checkpoint: awaiting human verify for 03.1-02
 Resume file: None

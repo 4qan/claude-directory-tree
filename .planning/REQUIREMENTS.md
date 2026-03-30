@@ -50,7 +50,7 @@
 
 - [x] **VIEW-01**: User can toggle between flat scope view and directory-hierarchy view that mirrors the real filesystem structure
 - [x] **VIEW-02**: Non-Claude folders on the path to a project render as plain folder nodes with no artifacts
-- [ ] **VIEW-03**: User's view preference (flat vs directory) persists across sessions via localStorage
+- [x] **VIEW-03**: User's view preference (flat vs directory) persists across sessions via localStorage
 
 ### Plugin Toggle
 
@@ -120,7 +120,7 @@
 | SUMM-01 | Phase 3 | Complete |
 | VIEW-01 | Phase 3.1 | Complete |
 | VIEW-02 | Phase 3.1 | Complete |
-| VIEW-03 | Phase 3.1 | Pending |
+| VIEW-03 | Phase 3.1 | Complete |
 | PLUG-01 | Phase 3.1 | Complete |
 | PLUG-02 | Phase 3.1 | Complete |
 
