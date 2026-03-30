@@ -10,6 +10,7 @@ export type TreeNodeData =
   | { nodeKind: 'root' }
   | (ScopeNode & { nodeKind: 'scope' })
   | { nodeKind: 'category'; id: string; type: ArtifactType; label?: string; children: Artifact[]; count: number }
+  | { nodeKind: 'folder'; id: string; label: string; absolutePath: string }
   | (Artifact & { nodeKind: 'leaf' });
 
 interface TreeItemProps {
