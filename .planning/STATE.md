@@ -110,6 +110,7 @@ None yet.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260330-qpc | Plugin internal visibility - scanner recurses into plugin directories | 2026-03-30 | 6a4fd37 | [260330-qpc](./quick/260330-qpc-plugin-internal-visibility-scanner-recur/) |
+| 260330-whn | Dark mode theme toggle - Moon/Sun button in header, localStorage persistence | 2026-03-30 | ddda8c1 | [260330-whn](./quick/260330-whn-dark-mode-theme-toggle/) |
 
 ### Blockers/Concerns
 
