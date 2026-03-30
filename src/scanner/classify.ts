@@ -356,7 +356,11 @@ export async function classifyScope(
 
   for (const artifact of rawArtifacts) {
     if (artifact.type === 'plugin') {
-      const pluginDir = path.dirname(artifact.absolutePath);
+      const pluginJsonDir = path.dirname(artifact.absolutePath);
+      // Cached plugins: plugin.json lives in .claude-plugin/ subdir; artifacts are in the parent
+      const pluginDir = path.basename(pluginJsonDir) === '.claude-plugin'
+        ? path.dirname(pluginJsonDir)
+        : pluginJsonDir;
       const children = await expandPlugin(pluginDir, scope, projectId, claudeDir);
       for (const child of children) {
         childAbsolutePaths.add(child.absolutePath);

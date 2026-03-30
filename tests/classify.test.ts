@@ -197,4 +197,35 @@ describe('classifyScope - full scope classification', () => {
       expect(a.scope).toBe('project');
     }
   });
+
+  it('cached plugin with .claude-plugin/ layout has children populated', async () => {
+    const artifacts = await classifyScope(CLAUDE_DIR, 'project', PROJECT_ID);
+    const plugin = artifacts.find((a) => a.type === 'plugin' && a.name === 'cached-plugin');
+    expect(plugin).toBeDefined();
+    expect(plugin?.children).toBeDefined();
+    expect(plugin?.children?.length).toBe(2);
+  });
+
+  it('cached plugin children include reviewer agent and deploy command', async () => {
+    const artifacts = await classifyScope(CLAUDE_DIR, 'project', PROJECT_ID);
+    const plugin = artifacts.find((a) => a.type === 'plugin' && a.name === 'cached-plugin');
+    const reviewerChild = plugin?.children?.find((c) => c.name === 'reviewer');
+    const deployChild = plugin?.children?.find((c) => c.name === 'deploy');
+    expect(reviewerChild).toBeDefined();
+    expect(reviewerChild?.type).toBe('agent');
+    expect(deployChild).toBeDefined();
+    expect(deployChild?.type).toBe('command');
+  });
+
+  it('cached plugin children not duplicated at top level', async () => {
+    const artifacts = await classifyScope(CLAUDE_DIR, 'project', PROJECT_ID);
+    const topLevelReviewer = artifacts.find(
+      (a) => a.name === 'reviewer' && a.type === 'agent',
+    );
+    const topLevelDeploy = artifacts.find(
+      (a) => a.name === 'deploy' && a.type === 'command',
+    );
+    expect(topLevelReviewer).toBeUndefined();
+    expect(topLevelDeploy).toBeUndefined();
+  });
 });
