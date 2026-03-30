@@ -1,4 +1,4 @@
-import { ChevronRight } from 'lucide-react';
+import { ChevronRight, Folder } from 'lucide-react';
 import type { ItemInstance } from '@headless-tree/core';
 import { ICON_MAP, TYPE_LABELS, MCP_SCOPE_LABELS } from '@/components/tree/iconMap';
 import { cn } from '@/lib/utils';
@@ -44,6 +44,11 @@ export function TreeItem({ item, isSelected, onSelect, onDoubleClick, onContextM
           )}
         />
         <span className="text-sm font-semibold truncate">{data.label}</span>
+        {data.section === 'current' && (
+          <span className="text-[10px] font-normal px-1.5 py-0.5 rounded-full shrink-0 leading-none bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+            current
+          </span>
+        )}
       </div>
     );
   }
@@ -67,6 +72,27 @@ export function TreeItem({ item, isSelected, onSelect, onDoubleClick, onContextM
         />
         <span className="text-sm font-semibold truncate">{data.label ?? TYPE_LABELS[data.type]}</span>
         <span className="text-xs text-muted-foreground">({data.count})</span>
+      </div>
+    );
+  }
+
+  if (data.nodeKind === 'folder') {
+    return (
+      <div
+        className={cn(
+          'flex items-center gap-2 px-2 py-1 h-7 rounded-sm cursor-default',
+          'hover:bg-muted/50'
+        )}
+      >
+        <ChevronRight
+          size={16}
+          className={cn(
+            'text-muted-foreground transition-transform duration-150 shrink-0',
+            isExpanded && 'rotate-90'
+          )}
+        />
+        <Folder size={16} className="text-muted-foreground shrink-0" />
+        <span className="text-sm font-normal truncate">{data.label}</span>
       </div>
     );
   }

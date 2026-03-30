@@ -1,6 +1,7 @@
 import { useMemo, useEffect, useRef, useState, useCallback } from 'react';
 import { useTree } from '@headless-tree/react';
 import { syncDataLoaderFeature, selectionFeature, hotkeysCoreFeature } from '@headless-tree/core';
+import { List, FolderTree } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { TreeItem } from '@/components/tree/TreeItem';
 import { TreeSkeleton } from '@/components/tree/TreeSkeleton';
@@ -8,9 +9,11 @@ import { TreeToolbar } from '@/components/tree/TreeToolbar';
 import { TYPE_LABELS } from '@/components/tree/iconMap';
 import { deriveVisibleTree } from '@/lib/deriveVisibleTree';
 import { openInEditor, copyArtifact, TYPE_DIR_MAP } from '@/lib/operationsApi';
+import { buildDirectoryItemMaps } from '@/lib/buildDirectoryItemMaps';
 import { ContextMenu } from '@/components/ContextMenu';
 import { ArtifactDetailPanel } from '@/components/ArtifactDetailPanel';
 import { showToast } from '@/components/Toast';
+import { cn } from '@/lib/utils';
 import type { ArtifactType, ScopeNode, Artifact } from '@/lib/types';
 import type { TreeNodeData } from '@/components/tree/TreeItem';
 
@@ -168,9 +171,15 @@ export function ArtifactTree({
     [scopes, query, typeFilter]
   );
 
+  const [viewMode, setViewMode] = useState<'flat' | 'directory'>(() => {
+    return (localStorage.getItem('cdt_view_mode') as 'flat' | 'directory') ?? 'flat';
+  });
+
   const { items, children } = useMemo(
-    () => buildItemMaps(filteredScopes),
-    [filteredScopes]
+    () => viewMode === 'flat'
+      ? buildItemMaps(filteredScopes)
+      : buildDirectoryItemMaps(filteredScopes),
+    [filteredScopes, viewMode]
   );
 
   // Selection state
@@ -204,7 +213,7 @@ export function ArtifactTree({
   } | null>(null);
 
   const handleContextMenu = useCallback((e: React.MouseEvent, data: TreeNodeData) => {
-    if (data.nodeKind === 'root') return;
+    if (data.nodeKind === 'root' || data.nodeKind === 'folder') return;
     e.preventDefault();
     setContextMenu({
       x: e.clientX,
@@ -237,6 +246,7 @@ export function ArtifactTree({
       const d = item.getItemData();
       if (d.nodeKind === 'scope') return d.label;
       if (d.nodeKind === 'category') return d.label ?? TYPE_LABELS[d.type];
+      if (d.nodeKind === 'folder') return d.label;
       if (d.nodeKind === 'leaf') return d.name;
       return 'root';
     },
@@ -269,11 +279,20 @@ export function ArtifactTree({
     }
   }, [dataLoader, tree]);
 
-  // Auto-expand all folders when a filter is active, collapse when cleared
+  // Auto-expand all folders when a filter is active, collapse when cleared.
+  // Track previous filter state to only respond to actual filter changes,
+  // not data refreshes (which would collapse the user's expanded nodes).
   const hasActiveFilters = Boolean(query || typeFilter);
   const [isExpanded, setIsExpanded] = useState(false);
+  const prevFiltersRef = useRef({ query, typeFilter });
 
   useEffect(() => {
+    const filtersChanged = prevFiltersRef.current.query !== query ||
+      prevFiltersRef.current.typeFilter !== typeFilter;
+    prevFiltersRef.current = { query, typeFilter };
+
+    if (!filtersChanged) return;
+
     if (hasActiveFilters) {
       const allFolderIds = Object.keys(items).filter(
         (id) => items[id].nodeKind !== 'leaf'
@@ -285,7 +304,7 @@ export function ArtifactTree({
       setIsExpanded(false);
     }
     tree.rebuildTree();
-  }, [hasActiveFilters, items, filteredScopes, tree]);
+  }, [hasActiveFilters, query, typeFilter, items, tree]);
 
   const handleToggleExpand = useCallback(() => {
     if (isExpanded) {
@@ -300,6 +319,22 @@ export function ArtifactTree({
     }
     tree.rebuildTree();
   }, [isExpanded, items, tree]);
+
+  const handleViewModeChange = useCallback((mode: 'flat' | 'directory') => {
+    setViewMode(mode);
+    localStorage.setItem('cdt_view_mode', mode);
+    // Reset expansion state to view-specific defaults
+    if (mode === 'flat') {
+      // Flat default: scopes expanded, categories collapsed
+      const scopeIds = Object.keys(items).filter((id) => items[id].nodeKind === 'scope');
+      tree.applySubStateUpdate('expandedItems', () => scopeIds);
+    } else {
+      // Directory default: top-level children expanded, rest collapsed
+      const topLevelIds = children['root'] ?? [];
+      tree.applySubStateUpdate('expandedItems', () => topLevelIds);
+    }
+    tree.rebuildTree();
+  }, [items, children, tree]);
 
   const handleSelect = useCallback((data: TreeNodeData) => {
     if (data.nodeKind !== 'root') {
@@ -502,6 +537,36 @@ export function ArtifactTree({
               >
                 {isExpanded ? 'Collapse all' : 'Expand all'}
               </button>
+              <div className="flex items-center gap-0.5 rounded-sm border border-border">
+                <button
+                  type="button"
+                  onClick={() => handleViewModeChange('flat')}
+                  className={cn(
+                    'p-1 rounded-sm transition-colors',
+                    viewMode === 'flat'
+                      ? 'text-foreground bg-muted'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                  aria-label="Flat view"
+                  aria-pressed={viewMode === 'flat'}
+                >
+                  <List size={14} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleViewModeChange('directory')}
+                  className={cn(
+                    'p-1 rounded-sm transition-colors',
+                    viewMode === 'directory'
+                      ? 'text-foreground bg-muted'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                  aria-label="Directory view"
+                  aria-pressed={viewMode === 'directory'}
+                >
+                  <FolderTree size={14} />
+                </button>
+              </div>
               <span className="text-xs text-muted-foreground">
                 {filteredScopes.length} {filteredScopes.length === 1 ? 'scope' : 'scopes'}
               </span>
@@ -522,7 +587,7 @@ export function ArtifactTree({
                   const data = item.getItemData();
                   let sectionHeader: React.ReactNode = null;
 
-                  if (data.nodeKind === 'scope') {
+                  if (viewMode === 'flat' && data.nodeKind === 'scope') {
                     const section = data.section;
                     if (section !== lastSection) {
                       lastSection = section;
