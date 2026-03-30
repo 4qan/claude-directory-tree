@@ -48,14 +48,14 @@
 
 ### Directory View Toggle
 
-- [ ] **VIEW-01**: User can toggle between flat scope view and directory-hierarchy view that mirrors the real filesystem structure
-- [ ] **VIEW-02**: Non-Claude folders on the path to a project render as plain folder nodes with no artifacts
+- [x] **VIEW-01**: User can toggle between flat scope view and directory-hierarchy view that mirrors the real filesystem structure
+- [x] **VIEW-02**: Non-Claude folders on the path to a project render as plain folder nodes with no artifacts
 - [ ] **VIEW-03**: User's view preference (flat vs directory) persists across sessions via localStorage
 
 ### Plugin Toggle
 
-- [ ] **PLUG-01**: User can click a toggle on a plugin to enable/disable it, writing to settings.json enabledPlugins
-- [ ] **PLUG-02**: Plugin enabled/disabled state reflects the current value in settings.json
+- [x] **PLUG-01**: User can click a toggle on a plugin to enable/disable it, writing to settings.json enabledPlugins
+- [x] **PLUG-02**: Plugin enabled/disabled state reflects the current value in settings.json
 
 ## v2 Requirements
 
@@ -118,11 +118,11 @@
 | OPS-08 | Phase 3 | Complete |
 | OPS-09 | Phase 3 | Complete |
 | SUMM-01 | Phase 3 | Complete |
-| VIEW-01 | Phase 3.1 | Pending |
-| VIEW-02 | Phase 3.1 | Pending |
+| VIEW-01 | Phase 3.1 | Complete |
+| VIEW-02 | Phase 3.1 | Complete |
 | VIEW-03 | Phase 3.1 | Pending |
-| PLUG-01 | Phase 3.1 | Pending |
-| PLUG-02 | Phase 3.1 | Pending |
+| PLUG-01 | Phase 3.1 | Complete |
+| PLUG-02 | Phase 3.1 | Complete |
 
 **Coverage:**
 - v1 requirements: 31 total

@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Phase 3.1 context gathered
-last_updated: "2026-03-29T19:00:40.567Z"
+stopped_at: Completed 03.1-01-PLAN.md
+last_updated: "2026-03-30T05:53:59.972Z"
 progress:
   total_phases: 5
   completed_phases: 3
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 12
+  completed_plans: 11
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Make every Claude Code artifact visible and actionable across all projects and scopes from a single tree view.
-**Current focus:** Phase 03 — operations
+**Current focus:** Phase 03.1 — directory-view-toggle-and-plugin-enable-disable
 
 ## Current Position
 
-Phase: 03 (operations) — EXECUTING
-Plan: 1 of 4
+Phase: 03.1 (directory-view-toggle-and-plugin-enable-disable) — EXECUTING
+Plan: 1 of 2
 
 ## Performance Metrics
 
@@ -53,6 +53,7 @@ Plan: 1 of 4
 | Phase 03-operations P01 | 25 | 3 tasks | 4 files |
 | Phase 03-operations P02 | 15 | 2 tasks | 7 files |
 | Phase 03-operations P03 | 3 | 2 tasks | 4 files |
+| Phase 03.1-directory-view-toggle-and-plugin-enable-disable P01 | 4 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,8 @@ Recent decisions affecting current work:
 - [Phase 03-operations]: Selection state lifted to App.tsx via onSelectedArtifactChange callback
 - [Phase 03-operations]: ConflictDialog managed inside ContextMenu state to keep conflict retry logic co-located with the triggering operation
 - [Phase 03-operations]: Category Copy Path resolves rootPath from parent scope by splitting category id on colon (scopeId:type pattern)
+- [Phase 03.1-directory-view-toggle-and-plugin-enable-disable]: Common ancestor computed across project directories (parent of .claude/), not rootPaths — single-project case starts at project dir
+- [Phase 03.1-directory-view-toggle-and-plugin-enable-disable]: buildDirectoryItemMaps is a standalone function; folder nodes use id pattern 'dir:/absolute/path'
 
 ### Roadmap Evolution
 
@@ -106,6 +109,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-29T19:00:40.564Z
-Stopped at: Phase 3.1 context gathered
-Resume file: .planning/phases/03.1-directory-view-toggle-and-plugin-enable-disable/03.1-CONTEXT.md
+Last session: 2026-03-30T05:53:59.970Z
+Stopped at: Completed 03.1-01-PLAN.md
+Resume file: None

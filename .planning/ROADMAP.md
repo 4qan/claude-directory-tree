@@ -83,7 +83,7 @@ Plans:
   3. User's view preference (flat vs directory) persists across sessions
   4. User can click a toggle on a plugin to enable/disable it, writing to ~/.claude/settings.json enabledPlugins
   5. Plugin enabled/disabled state reflects the current value in settings.json
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 03.1-01-PLAN.md — Data layer: buildDirectoryItemMaps function, TreeNodeData folder type, toggle-plugin server endpoint, shared schemas, client API, tests
