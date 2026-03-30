@@ -529,43 +529,46 @@ export function ArtifactTree({
         <div className="flex-1 flex flex-col min-h-0 min-w-0 overflow-y-auto">
           {/* Tree bar */}
           {!isLoading && !error && filteredScopes.length > 0 && (
-            <div className="flex items-center justify-between px-4 pt-3 pb-1">
-              <button
-                type="button"
-                onClick={handleToggleExpand}
-                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {isExpanded ? 'Collapse all' : 'Expand all'}
-              </button>
-              <div className="flex items-center gap-0.5 rounded-sm border border-border">
+            <div className="flex items-center justify-between px-4 pt-3 pb-2 border-b border-border">
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => handleViewModeChange('flat')}
-                  className={cn(
-                    'p-1 rounded-sm transition-colors',
-                    viewMode === 'flat'
-                      ? 'text-foreground bg-muted'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                  aria-label="Flat view"
-                  aria-pressed={viewMode === 'flat'}
+                  onClick={handleToggleExpand}
+                  className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  <List size={14} />
+                  {isExpanded ? 'Collapse all' : 'Expand all'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => handleViewModeChange('directory')}
-                  className={cn(
-                    'p-1 rounded-sm transition-colors',
-                    viewMode === 'directory'
-                      ? 'text-foreground bg-muted'
-                      : 'text-muted-foreground hover:text-foreground'
-                  )}
-                  aria-label="Directory view"
-                  aria-pressed={viewMode === 'directory'}
-                >
-                  <FolderTree size={14} />
-                </button>
+                <div className="w-px h-3.5 bg-border" />
+                <div className="flex items-center gap-0.5 rounded-sm border border-border">
+                  <button
+                    type="button"
+                    onClick={() => handleViewModeChange('flat')}
+                    className={cn(
+                      'p-1 rounded-sm transition-colors',
+                      viewMode === 'flat'
+                        ? 'text-foreground bg-muted'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                    aria-label="Flat view"
+                    aria-pressed={viewMode === 'flat'}
+                  >
+                    <List size={14} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleViewModeChange('directory')}
+                    className={cn(
+                      'p-1 rounded-sm transition-colors',
+                      viewMode === 'directory'
+                        ? 'text-foreground bg-muted'
+                        : 'text-muted-foreground hover:text-foreground'
+                    )}
+                    aria-label="Directory view"
+                    aria-pressed={viewMode === 'directory'}
+                  >
+                    <FolderTree size={14} />
+                  </button>
+                </div>
               </div>
               <span className="text-xs text-muted-foreground">
                 {filteredScopes.length} {filteredScopes.length === 1 ? 'scope' : 'scopes'}

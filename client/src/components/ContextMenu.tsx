@@ -8,8 +8,7 @@ import {
   ArrowDownCircle,
   FolderOpen,
   ChevronRight,
-  ToggleLeft,
-  ToggleRight,
+  Power,
 } from 'lucide-react';
 import {
   TYPE_DIR_MAP,
@@ -162,6 +161,14 @@ export function ContextMenu({
     onClose();
   }, [data, onClose]);
 
+  const handleOpenLeafFolder = useCallback(async () => {
+    if (data.nodeKind === 'leaf') {
+      const dirPath = data.absolutePath.substring(0, data.absolutePath.lastIndexOf('/'));
+      await openInEditor(dirPath);
+    }
+    onClose();
+  }, [data, onClose]);
+
   const handleTogglePlugin = useCallback(async () => {
     if (data.nodeKind !== 'leaf' || data.type !== 'plugin' || data.enabled === undefined) return;
     const newEnabled = !data.enabled;
@@ -219,21 +226,16 @@ export function ContextMenu({
       const showDemote = data.scope === 'global';
       return (
         <>
-          {data.type === 'plugin' && data.enabled !== undefined && (
-            <>
-              <MenuItemRow
-                icon={data.enabled ? <ToggleLeft size={14} /> : <ToggleRight size={14} />}
-                label={data.enabled ? 'Disable plugin' : 'Enable plugin'}
-                onClick={handleTogglePlugin}
-                onMouseEnter={() => setActiveFlyout(null)}
-              />
-              <Separator />
-            </>
-          )}
           <MenuItemRow
             icon={<ExternalLink size={14} />}
             label="Open in Editor"
             onClick={handleOpenInEditor}
+            onMouseEnter={() => setActiveFlyout(null)}
+          />
+          <MenuItemRow
+            icon={<FolderOpen size={14} />}
+            label="Show in Folder"
+            onClick={handleOpenLeafFolder}
             onMouseEnter={() => setActiveFlyout(null)}
           />
           <MenuItemRow
@@ -242,44 +244,48 @@ export function ContextMenu({
             onClick={handleCopyPath}
             onMouseEnter={() => setActiveFlyout(null)}
           />
-          <FlyoutItemRow
-            icon={<Copy size={14} />}
-            label="Copy to..."
-            disabled={isBlocked}
-            disabledTooltip="Managed in config file"
-            isActive={activeFlyout === 'copy'}
-            onHover={(el) => !isBlocked && openFlyout('copy', el)}
-            onLeave={() => {}}
-          />
-          <FlyoutItemRow
-            icon={<ArrowRight size={14} />}
-            label="Move to..."
-            disabled={isBlocked}
-            disabledTooltip="Managed in config file"
-            isActive={activeFlyout === 'move'}
-            onHover={(el) => !isBlocked && openFlyout('move', el)}
-            onLeave={() => {}}
-          />
-          {showPromote && (
+          {data.type === 'plugin' && data.enabled !== undefined && (
             <MenuItemRow
-              icon={<ArrowUpCircle size={14} />}
-              label="Promote to Global"
-              disabled={isBlocked}
-              disabledTooltip="Managed in config file"
-              onClick={!isBlocked ? handlePromote : undefined}
+              icon={<Power size={14} />}
+              label={data.enabled ? 'Disable plugin' : 'Enable plugin'}
+              onClick={handleTogglePlugin}
               onMouseEnter={() => setActiveFlyout(null)}
             />
           )}
-          {showDemote && (
-            <FlyoutItemRow
-              icon={<ArrowDownCircle size={14} />}
-              label="Demote to Project"
-              disabled={isBlocked}
-              disabledTooltip="Managed in config file"
-              isActive={activeFlyout === 'demote'}
-              onHover={(el) => !isBlocked && openFlyout('demote', el)}
-              onLeave={() => {}}
-            />
+          {!isBlocked && (
+            <>
+              <FlyoutItemRow
+                icon={<Copy size={14} />}
+                label="Copy to..."
+                isActive={activeFlyout === 'copy'}
+                onHover={(el) => openFlyout('copy', el)}
+                onLeave={() => {}}
+              />
+              <FlyoutItemRow
+                icon={<ArrowRight size={14} />}
+                label="Move to..."
+                isActive={activeFlyout === 'move'}
+                onHover={(el) => openFlyout('move', el)}
+                onLeave={() => {}}
+              />
+              {showPromote && (
+                <MenuItemRow
+                  icon={<ArrowUpCircle size={14} />}
+                  label="Promote to Global"
+                  onClick={handlePromote}
+                  onMouseEnter={() => setActiveFlyout(null)}
+                />
+              )}
+              {showDemote && (
+                <FlyoutItemRow
+                  icon={<ArrowDownCircle size={14} />}
+                  label="Demote to Project"
+                  isActive={activeFlyout === 'demote'}
+                  onHover={(el) => openFlyout('demote', el)}
+                  onLeave={() => {}}
+                />
+              )}
+            </>
           )}
         </>
       );
@@ -405,24 +411,15 @@ interface MenuItemRowProps {
   icon: React.ReactNode;
   label: string;
   onClick?: () => void;
-  disabled?: boolean;
-  disabledTooltip?: string;
   onMouseEnter?: () => void;
 }
 
-function MenuItemRow({ icon, label, onClick, disabled, disabledTooltip, onMouseEnter }: MenuItemRowProps) {
+function MenuItemRow({ icon, label, onClick, onMouseEnter }: MenuItemRowProps) {
   return (
     <button
       type="button"
-      className={cn(
-        'w-full flex items-center gap-2 px-3 h-8 text-left transition-colors rounded-sm',
-        disabled
-          ? 'opacity-50 cursor-not-allowed'
-          : 'hover:bg-accent hover:text-accent-foreground cursor-default'
-      )}
-      aria-disabled={disabled}
-      title={disabled ? disabledTooltip : undefined}
-      onClick={disabled ? undefined : onClick}
+      className="w-full flex items-center gap-2 px-3 h-8 text-left transition-colors rounded-sm hover:bg-accent hover:text-accent-foreground cursor-default"
+      onClick={onClick}
       onMouseEnter={onMouseEnter}
     >
       <span className="text-muted-foreground shrink-0">{icon}</span>
@@ -434,8 +431,6 @@ function MenuItemRow({ icon, label, onClick, disabled, disabledTooltip, onMouseE
 interface FlyoutItemRowProps {
   icon: React.ReactNode;
   label: string;
-  disabled?: boolean;
-  disabledTooltip?: string;
   isActive: boolean;
   onHover: (el: HTMLElement) => void;
   onLeave: () => void;
@@ -444,8 +439,6 @@ interface FlyoutItemRowProps {
 function FlyoutItemRow({
   icon,
   label,
-  disabled,
-  disabledTooltip,
   isActive,
   onHover,
   onLeave,
@@ -454,24 +447,17 @@ function FlyoutItemRow({
     <div
       className={cn(
         'w-full flex items-center gap-2 px-3 h-8 transition-colors rounded-sm',
-        disabled
-          ? 'opacity-50 cursor-not-allowed'
-          : isActive
-            ? 'bg-accent text-accent-foreground cursor-default'
-            : 'hover:bg-accent hover:text-accent-foreground cursor-default'
+        isActive
+          ? 'bg-accent text-accent-foreground cursor-default'
+          : 'hover:bg-accent hover:text-accent-foreground cursor-default'
       )}
-      aria-disabled={disabled}
-      title={disabled ? disabledTooltip : undefined}
-      onMouseEnter={(e) => !disabled && onHover(e.currentTarget)}
+      onMouseEnter={(e) => onHover(e.currentTarget)}
       onMouseLeave={onLeave}
     >
       <span className="text-muted-foreground shrink-0">{icon}</span>
       <span className="flex-1 truncate">{label}</span>
-      {!disabled && <ChevronRight size={12} className="text-muted-foreground shrink-0" />}
+      <ChevronRight size={12} className="text-muted-foreground shrink-0" />
     </div>
   );
 }
 
-function Separator() {
-  return <div className="my-1 border-t border-border" />;
-}

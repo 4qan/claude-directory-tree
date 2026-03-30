@@ -8,8 +8,7 @@ import {
   ArrowRight,
   ArrowUpCircle,
   ArrowDownCircle,
-  ToggleLeft,
-  ToggleRight,
+  Power,
 } from 'lucide-react';
 import { ICON_MAP, TYPE_LABELS_SINGULAR } from '@/components/tree/iconMap';
 import { cn } from '@/lib/utils';
@@ -18,7 +17,6 @@ import { showToast } from '@/components/Toast';
 import { ConflictDialog } from '@/components/ConflictDialog';
 import { WarningDialog } from '@/components/WarningDialog';
 import { useArtifactOperations } from '@/hooks/useArtifactOperations';
-import { Button } from '@/components/ui/button';
 import type { Artifact, ScopeNode } from '@/lib/types';
 
 const BLOCKED_TYPES = ['hook', 'mcp-config', 'plugin', 'plan', 'memory', 'claude-md'];
@@ -139,15 +137,11 @@ export function ArtifactDetailPanel({ artifact, scopes, onClose, onRefresh }: Ar
           <ActionButton icon={<FolderOpen size={14} />} label="Show in Folder" onClick={handleRevealInFinder} />
           <ActionButton icon={<Clipboard size={14} />} label="Copy Path" onClick={handleCopyPath} />
           {artifact.type === 'plugin' && artifact.enabled !== undefined && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex items-center gap-2 justify-start h-8 text-sm"
+            <ActionButton
+              icon={artifact.enabled ? <Power size={14} /> : <Power size={14} />}
+              label={artifact.enabled ? 'Disable plugin' : 'Enable plugin'}
               onClick={handleTogglePlugin}
-            >
-              {artifact.enabled ? <ToggleLeft size={14} /> : <ToggleRight size={14} />}
-              {artifact.enabled ? 'Disable' : 'Enable'}
-            </Button>
+            />
           )}
           {showCopyMove && (
             <>

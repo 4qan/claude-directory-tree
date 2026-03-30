@@ -369,6 +369,17 @@ export async function operationsRoutes(server: FastifyInstance, _targetDir: stri
         }
 
         const raw = await fs.readFile(reqPath, 'utf-8');
+
+        // JSON files (plugin.json, etc.): extract description field directly
+        if (reqPath.endsWith('.json')) {
+          try {
+            const json = JSON.parse(raw);
+            return reply.send({ description: json.description ? String(json.description) : null });
+          } catch {
+            return reply.send({ description: null });
+          }
+        }
+
         const { data, content } = matter(raw);
 
         if (data.description) {
