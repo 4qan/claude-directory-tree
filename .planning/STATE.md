@@ -105,6 +105,12 @@ Recent decisions affecting current work:
 
 None yet.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260330-qpc | Plugin internal visibility - scanner recurses into plugin directories | 2026-03-30 | 6a4fd37 | [260330-qpc](./quick/260330-qpc-plugin-internal-visibility-scanner-recur/) |
+
 ### Blockers/Concerns
 
 - Phase 3: MCP settings.json schema needs validation before surgical-edit implementation (see research SUMMARY.md)
@@ -112,6 +118,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T05:59:25.461Z
+Last session: 2026-03-30
 Stopped at: Checkpoint: awaiting human verify for 03.1-02
 Resume file: None
