@@ -6,6 +6,17 @@
   "bin": {
     "claude-directory-tree": "./dist/cli.js"
   },
+  "files": [
+    "dist/",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/furqantariq/claude-directory-tree.git"
+  },
+  "homepage": "https://github.com/furqantariq/claude-directory-tree",
+  "author": "Furqan Tariq",
   "engines": {
     "node": ">=20.17.0"
   },
@@ -15,6 +26,7 @@
     "build": "npm run build:server && npm run build:client",
     "dev:server": "tsup --watch",
     "dev:client": "vite",
+    "prepublishOnly": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest"
   },
