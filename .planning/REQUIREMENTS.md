@@ -59,9 +59,9 @@
 
 ### Distribution
 
-- [ ] **DIST-01**: `/claude-tree:launch` command in Claude Code starts the server and opens the browser (via plugin)
-- [ ] **DIST-02**: `npx claude-directory-tree` works from any directory without manual setup (via npm package)
-- [ ] **DIST-03**: Target directory defaults to project root (plugin context) or cwd (standalone), with optional override argument
+- [x] **DIST-01**: `/claude-tree:launch` command in Claude Code starts the server and opens the browser (via plugin)
+- [x] **DIST-02**: `npx claude-directory-tree` works from any directory without manual setup (via npm package)
+- [x] **DIST-03**: Target directory defaults to project root (plugin context) or cwd (standalone), with optional override argument
 
 ## v2 Requirements
 
@@ -129,9 +129,9 @@
 | VIEW-03 | Phase 3.1 | Complete |
 | PLUG-01 | Phase 3.1 | Complete |
 | PLUG-02 | Phase 3.1 | Complete |
-| DIST-01 | Phase 4 | Pending |
-| DIST-02 | Phase 4 | Pending |
-| DIST-03 | Phase 4 | Pending |
+| DIST-01 | Phase 4 | Complete |
+| DIST-02 | Phase 4 | Complete |
+| DIST-03 | Phase 4 | Complete |
 
 **Coverage:**
 - v1 requirements: 34 total

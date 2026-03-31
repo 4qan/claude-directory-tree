@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: unknown
-stopped_at: Phase 4 context gathered
-last_updated: "2026-03-30T19:02:21.857Z"
+stopped_at: Completed 04-01-PLAN.md
+last_updated: "2026-03-31T05:10:33.862Z"
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 14
+  completed_plans: 13
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-28)
 
 **Core value:** Make every Claude Code artifact visible and actionable across all projects and scopes from a single tree view.
-**Current focus:** Phase 03.1 — directory-view-toggle-and-plugin-enable-disable
+**Current focus:** Phase 04 — plugin-distribution
 
 ## Current Position
 
-Phase: 03.1 (directory-view-toggle-and-plugin-enable-disable) — EXECUTING
-Plan: 2 of 2 (complete)
+Phase: 04 (plugin-distribution) — EXECUTING
+Plan: 1 of 2
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Plan: 2 of 2 (complete)
 | Phase 03-operations P03 | 3 | 2 tasks | 4 files |
 | Phase 03.1-directory-view-toggle-and-plugin-enable-disable P01 | 4 | 2 tasks | 7 files |
 | Phase 03.1-directory-view-toggle-and-plugin-enable-disable P02 | 18 | 2 tasks | 4 files |
+| Phase 04-plugin-distribution P01 | 12 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,8 @@ Recent decisions affecting current work:
 - [Phase 03.1-directory-view-toggle-and-plugin-enable-disable]: buildDirectoryItemMaps is a standalone function; folder nodes use id pattern 'dir:/absolute/path'
 - [Phase 03.1-directory-view-toggle-and-plugin-enable-disable]: Section headers only in flat view; directory view uses folder hierarchy
 - [Phase 03.1-directory-view-toggle-and-plugin-enable-disable]: localStorage read in useState initializer to prevent flash of wrong view on mount
+- [Phase 04-plugin-distribution]: Plugin name claude-tree with command files launch.md/add.md produces /claude-tree:launch and /claude-tree:add (cleaner UX than alternative namespacing)
+- [Phase 04-plugin-distribution]: plugin/ excluded from npm files allowlist; distributed via git marketplace, not npm consumers
 
 ### Roadmap Evolution
 
@@ -119,6 +122,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-30T19:02:21.854Z
-Stopped at: Phase 4 context gathered
-Resume file: .planning/phases/04-plugin-distribution/04-CONTEXT.md
+Last session: 2026-03-31T05:10:33.859Z
+Stopped at: Completed 04-01-PLAN.md
+Resume file: None

@@ -97,7 +97,7 @@ Plans:
   1. `/claude-tree:launch` command in Claude Code starts the server and opens the browser
   2. `npx claude-directory-tree` works from any directory without manual setup
   3. Target directory defaults to project root (plugin) or cwd (standalone)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 
 Plans:
 - [ ] 04-01-PLAN.md — Plugin structure (plugin.json, command files, marketplace.json) and npm packaging (files, prepublishOnly, LICENSE)
@@ -114,4 +114,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 4
 | 2. Tree View | 3/3 | Complete   | 2026-03-28 |
 | 3. Operations | 4/4 | Complete   | 2026-03-29 |
 | 3.1 View Toggle & Plugin Toggle | 2/2 | Complete | 2026-03-30 |
-| 4. Plugin Distribution | 0/2 | Not started | - |
+| 4. Plugin Distribution | 1/2 | In Progress|  |
