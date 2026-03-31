@@ -1,0 +1,13 @@
+{
+  "name": "claude-tree",
+  "version": "0.1.0",
+  "description": "Visual explorer for all Claude Code artifacts across projects and scopes",
+  "author": {
+    "name": "Furqan Tariq",
+    "url": "https://github.com/furqantariq"
+  },
+  "homepage": "https://github.com/furqantariq/claude-directory-tree",
+  "repository": "https://github.com/furqantariq/claude-directory-tree",
+  "license": "MIT",
+  "keywords": ["claude", "artifacts", "tree", "explorer"]
+}

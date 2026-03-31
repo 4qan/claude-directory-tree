@@ -1,0 +1,15 @@
+{
+  "name": "claude-directory-tree",
+  "owner": {
+    "name": "Furqan Tariq"
+  },
+  "plugins": [
+    {
+      "name": "claude-tree",
+      "source": "./plugin",
+      "description": "Visual explorer for all Claude Code artifacts across projects and scopes",
+      "version": "0.1.0",
+      "homepage": "https://github.com/furqantariq/claude-directory-tree"
+    }
+  ]
+}
