@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Tree View** - Read-only artifact tree with search, filter, refresh, and scope labels (completed 2026-03-28)
 - [x] **Phase 3: Operations** - File copy/move/promote/demote, context menu, keyboard nav, and artifact summaries
 - [x] **Phase 3.1: Directory View Toggle & Plugin Enable/Disable** - Flat/hierarchy view toggle and plugin on/off from UI (completed 2026-03-30) (INSERTED)
-- [ ] **Phase 4: Plugin Distribution** - Claude Code plugin (/tree command) and npm package for frictionless install
+- [ ] **Phase 4: Plugin Distribution** - Claude Code plugin (/claude-tree command) and npm package for frictionless install
 
 ## Phase Details
 
@@ -90,14 +90,18 @@ Plans:
 - [ ] 03.1-02-PLAN.md — UI wiring: view toggle in tree bar, folder node rendering, plugin toggle in ContextMenu and DetailPanel, human verification
 
 ### Phase 4: Plugin Distribution
-**Goal**: Users can install once and launch with `/tree` in Claude Code or `npx claude-directory-tree` from any terminal
+**Goal**: Users can install once and launch with `/claude-tree:launch` in Claude Code or `npx claude-directory-tree` from any terminal
 **Depends on**: Phase 3.1
-**Requirements**: TBD
+**Requirements**: DIST-01, DIST-02, DIST-03
 **Success Criteria** (what must be TRUE):
-  1. `/tree` command in Claude Code starts the server and opens the browser
+  1. `/claude-tree:launch` command in Claude Code starts the server and opens the browser
   2. `npx claude-directory-tree` works from any directory without manual setup
   3. Target directory defaults to project root (plugin) or cwd (standalone)
-**Plans**: TBD
+**Plans:** 2 plans
+
+Plans:
+- [ ] 04-01-PLAN.md — Plugin structure (plugin.json, command files, marketplace.json) and npm packaging (files, prepublishOnly, LICENSE)
+- [ ] 04-02-PLAN.md — README with install/usage docs, human verification of complete distribution package
 
 ## Progress
 
@@ -110,4 +114,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 3.1 → 4
 | 2. Tree View | 3/3 | Complete   | 2026-03-28 |
 | 3. Operations | 4/4 | Complete   | 2026-03-29 |
 | 3.1 View Toggle & Plugin Toggle | 2/2 | Complete | 2026-03-30 |
-| 4. Plugin Distribution | 0/? | Not started | - |
+| 4. Plugin Distribution | 0/2 | Not started | - |

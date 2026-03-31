@@ -57,6 +57,12 @@
 - [x] **PLUG-01**: User can click a toggle on a plugin to enable/disable it, writing to settings.json enabledPlugins
 - [x] **PLUG-02**: Plugin enabled/disabled state reflects the current value in settings.json
 
+### Distribution
+
+- [ ] **DIST-01**: `/claude-tree:launch` command in Claude Code starts the server and opens the browser (via plugin)
+- [ ] **DIST-02**: `npx claude-directory-tree` works from any directory without manual setup (via npm package)
+- [ ] **DIST-03**: Target directory defaults to project root (plugin context) or cwd (standalone), with optional override argument
+
 ## v2 Requirements
 
 ### Real-time Updates
@@ -123,12 +129,15 @@
 | VIEW-03 | Phase 3.1 | Complete |
 | PLUG-01 | Phase 3.1 | Complete |
 | PLUG-02 | Phase 3.1 | Complete |
+| DIST-01 | Phase 4 | Pending |
+| DIST-02 | Phase 4 | Pending |
+| DIST-03 | Phase 4 | Pending |
 
 **Coverage:**
-- v1 requirements: 31 total
-- Mapped to phases: 31
+- v1 requirements: 34 total
+- Mapped to phases: 34
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-28*
-*Last updated: 2026-03-30 after Phase 3.1 planning*
+*Last updated: 2026-03-31 after Phase 4 planning*
