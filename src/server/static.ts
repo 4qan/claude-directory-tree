@@ -7,7 +7,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 export async function registerStatic(server: FastifyInstance) {
   await server.register(staticPlugin, {
-    root: join(__dirname, '../client/dist'),
+    root: join(__dirname, '../client'),
     prefix: '/',
     wildcard: false,
   });
