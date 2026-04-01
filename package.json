@@ -13,9 +13,9 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/furqantariq/claude-directory-tree.git"
+    "url": "https://github.com/4qan/claude-directory-tree.git"
   },
-  "homepage": "https://github.com/furqantariq/claude-directory-tree",
+  "homepage": "https://github.com/4qan/claude-directory-tree",
   "author": "Furqan Tariq",
   "engines": {
     "node": ">=20.17.0"

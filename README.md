@@ -18,7 +18,7 @@ Visual explorer for all your Claude Code artifacts across projects and scopes.
 
 ```bash
 # Add the marketplace
-/plugin marketplace add furqantariq/claude-directory-tree
+/plugin marketplace add 4qan/claude-directory-tree
 
 # Install the plugin
 /plugin install claude-tree@claude-directory-tree
@@ -71,7 +71,7 @@ npx claude-directory-tree --add /path/to/project
 ## Development
 
 ```bash
-git clone https://github.com/furqantariq/claude-directory-tree.git
+git clone https://github.com/4qan/claude-directory-tree.git
 cd claude-directory-tree
 npm install
 npm run build
