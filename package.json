@@ -4,7 +4,7 @@
   "description": "Visual file-explorer for all your Claude Code artifacts across projects and scopes",
   "type": "module",
   "bin": {
-    "claude-directory-tree": "./dist/cli.js"
+    "claude-directory-tree": "dist/cli.js"
   },
   "files": [
     "dist/",
