@@ -4,3 +4,4 @@ client/dist/
 *.tsbuildinfo
 .DS_Store
 .npmrc
+.planning/
