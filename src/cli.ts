@@ -2,32 +2,16 @@ import getPort, { portNumbers } from 'get-port';
 import open from 'open';
 import { runScan } from './scanner/index.js';
 import { startServer } from './server/index.js';
-import { addProject } from './config/projects.js';
 
 const DEFAULT_PORT = 3737;
 
 // Parse args
 const args = process.argv.slice(2);
 let targetDir = process.cwd();
-let addPath: string | null = null;
 
 for (let i = 0; i < args.length; i++) {
-  if (args[i] === '--add' && args[i + 1]) {
-    addPath = args[++i];
-  } else if (!args[i].startsWith('-')) {
+  if (!args[i].startsWith('-')) {
     targetDir = args[i];
-  }
-}
-
-// Handle --add flag
-if (addPath) {
-  const { resolve } = await import('node:path');
-  const resolved = resolve(addPath);
-  await addProject(resolved);
-  console.log(`Registered project: ${resolved}`);
-  if (args.length === 2 && args[0] === '--add') {
-    // Only --add was passed, no scan requested
-    process.exit(0);
   }
 }
 

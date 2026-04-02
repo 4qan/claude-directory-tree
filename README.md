@@ -24,7 +24,7 @@ Visual explorer for all your Claude Code artifacts across projects and scopes.
 /plugin install claude-tree@claude-directory-tree
 ```
 
-Then use `/claude-tree:launch` to open the UI or `/claude-tree:add [path]` to register a project.
+Then use `/claude-tree:launch` to open the UI.
 
 ### As a Standalone CLI
 
@@ -47,9 +47,6 @@ npx claude-directory-tree
 
 # Launch from a specific directory
 npx claude-directory-tree /path/to/projects
-
-# Register a project for the universal view
-npx claude-directory-tree --add /path/to/project
 ```
 
 ## Features

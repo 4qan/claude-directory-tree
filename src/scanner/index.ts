@@ -4,7 +4,6 @@ import fs from 'node:fs/promises';
 import { homedir } from 'node:os';
 import { findClaudeDirs } from './discover.js';
 import { classifyScope, isGlobalScope } from './classify.js';
-import { getRegisteredProjects } from '../config/projects.js';
 import type { ScanResponse, ScopeNode } from './types.js';
 
 /**
@@ -55,19 +54,7 @@ export async function runScan(targetDir: string): Promise<ScanResponse> {
   // 1. Discover .claude dirs under targetDir
   const discoveredDirs = await findClaudeDirs(targetDir);
 
-  // 2. Add manually registered project .claude dirs
-  const registeredProjects = await getRegisteredProjects();
-  for (const projectPath of registeredProjects) {
-    const claudeDir = path.join(projectPath, '.claude');
-    try {
-      await fs.access(claudeDir);
-      discoveredDirs.push(claudeDir);
-    } catch {
-      // path doesn't exist -- skip
-    }
-  }
-
-  // 3. Discover projects that Claude Code knows about.
+  // 2. Discover projects that Claude Code knows about.
   //    ~/.claude/projects/ contains per-project settings with lossy-encoded directory names.
   //    Instead of reverse-engineering the encoding, extract unique parent directories
   //    and scan those for .claude dirs.
