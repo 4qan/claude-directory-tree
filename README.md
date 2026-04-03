@@ -59,11 +59,18 @@ Find artifacts across all projects. Click any artifact to see its description an
 
 ![Search and Detail Panel](docs/screenshots/search-detail.png)
 
-### Context menu with operations
+### Artifact operations
 
-Right-click any artifact to copy, move, promote to global, or demote to a project scope.
+Right-click any artifact to manage it across scopes.
 
 ![Context Menu](docs/screenshots/context-menu.png)
+
+- **Copy to** - duplicate an artifact to another project's `.claude/` directory
+- **Move to** - move an artifact to another project (removes from source)
+- **Promote to Global** - copy a project-level artifact to `~/.claude/` so it's available everywhere
+- **Demote to Project** - copy a global artifact into a specific project's scope
+
+All operations detect conflicts. If the target already has a file with the same name, you'll be prompted to overwrite or cancel.
 
 ### Directory view
 
