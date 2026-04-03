@@ -2,12 +2,12 @@
 
 Visual explorer for all your Claude Code artifacts across projects and scopes.
 
-![Claude Directory Tree - Dark Mode](docs/screenshots/tree-view.png)
+![Claude Directory Tree](docs/screenshots/hero-dark.png)
 
 ## What it does
 
 - See all Claude artifacts (skills, agents, commands, plugins, hooks, CLAUDE.md, MCP servers, memory) in one tree view
-- Organize by scope (global vs project) or filesystem hierarchy
+- Organize by scope (flat) or filesystem hierarchy (directory view)
 - Copy, move, promote (project to global), and demote (global to project) artifacts
 - Search and filter by name or type
 - Toggle plugins on/off directly from the UI
@@ -53,23 +53,39 @@ npx claude-directory-tree /path/to/projects
 
 ## Features
 
-**Search and detail panel** - Find artifacts across all projects, see descriptions and actions at a glance.
+### Search and detail panel
 
-![Search and Detail Panel](docs/screenshots/search-filter.png)
+Find artifacts across all projects. Click any artifact to see its description and available actions.
 
-**Context menu** - Right-click any artifact to open in editor, copy path, or manage plugins.
+![Search and Detail Panel](docs/screenshots/search-detail.png)
+
+### Context menu with operations
+
+Right-click any artifact to copy, move, promote to global, or demote to a project scope.
 
 ![Context Menu](docs/screenshots/context-menu.png)
 
-**Light and dark mode**
+### Directory view
 
-![Light Mode](docs/screenshots/tree-view-light.png)
+Switch between flat scope view and filesystem hierarchy to see where artifacts live on disk.
 
-- Flat scope view and directory hierarchy view with toggle
-- Context menu with copy, move, promote, demote actions
-- Conflict detection with overwrite prompt
-- Detail panel showing artifact summaries
-- Local only, no network calls, no telemetry
+![Directory View](docs/screenshots/directory-view.png)
+
+### Type filtering
+
+Filter by artifact type (agents, commands, plugins, skills, hooks, MCP servers, etc.).
+
+![Type Filter](docs/screenshots/type-filter.png)
+
+### Plugin management
+
+Enable or disable plugins directly from the context menu or detail panel.
+
+![Plugin Toggle](docs/screenshots/plugin-toggle.png)
+
+### Light and dark mode
+
+![Light Mode](docs/screenshots/hero-light.png)
 
 ## Requirements
 
