@@ -1,6 +1,6 @@
 {
   "name": "claude-directory-tree",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Visual file-explorer for all your Claude Code artifacts across projects and scopes",
   "type": "module",
   "bin": {
