@@ -6,6 +6,18 @@ import { findClaudeDirs } from './discover.js';
 import { classifyScope, isGlobalScope } from './classify.js';
 import type { ScanResponse, ScopeNode } from './types.js';
 
+const CONFIG_DIR = path.join(homedir(), '.claude-directory-tree');
+
+async function getHiddenScopes(): Promise<string[]> {
+  try {
+    const raw = await fs.readFile(path.join(CONFIG_DIR, 'config.json'), 'utf-8');
+    const config = JSON.parse(raw);
+    return config.hiddenScopes ?? [];
+  } catch {
+    return [];
+  }
+}
+
 /**
  * Resolve an ambiguously-decoded project path. The encoding replaces both `/` and ` ` with `-`,
  * so we walk the path segment by segment: at each level, check if a directory exists, and if not,
@@ -180,9 +192,11 @@ export async function runScan(targetDir: string): Promise<ScanResponse> {
     });
   }
 
-  // Filter out empty scopes, then sort: global first, current project second, rest alphabetical
+  // Filter out empty and hidden scopes, then sort: global first, current project second, rest alphabetical
+  const hiddenScopes = await getHiddenScopes();
   const nonEmptyScopes = scopes
     .filter((s) => s.artifactCount > 0)
+    .filter((s) => !hiddenScopes.some((h) => s.label.includes(h)))
     .sort((a, b) => {
       const order = { global: 0, current: 1, projects: 2 };
       const sectionDiff = order[a.section] - order[b.section];
