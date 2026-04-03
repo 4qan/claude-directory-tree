@@ -2,7 +2,7 @@
 
 Visual explorer for all your Claude Code artifacts across projects and scopes.
 
-<!-- TODO: Add screenshot of tree view -->
+![Claude Directory Tree - Dark Mode](docs/screenshots/tree-view.png)
 
 ## What it does
 
@@ -11,6 +11,8 @@ Visual explorer for all your Claude Code artifacts across projects and scopes.
 - Copy, move, promote (project to global), and demote (global to project) artifacts
 - Search and filter by name or type
 - Toggle plugins on/off directly from the UI
+
+All projects you've used with Claude Code are auto-discovered. No manual setup needed.
 
 ## Install
 
@@ -51,13 +53,22 @@ npx claude-directory-tree /path/to/projects
 
 ## Features
 
-<!-- TODO: Add screenshot of context menu / operations -->
+**Search and detail panel** - Find artifacts across all projects, see descriptions and actions at a glance.
+
+![Search and Detail Panel](docs/screenshots/search-filter.png)
+
+**Context menu** - Right-click any artifact to open in editor, copy path, or manage plugins.
+
+![Context Menu](docs/screenshots/context-menu.png)
+
+**Light and dark mode**
+
+![Light Mode](docs/screenshots/tree-view-light.png)
 
 - Flat scope view and directory hierarchy view with toggle
 - Context menu with copy, move, promote, demote actions
 - Conflict detection with overwrite prompt
 - Detail panel showing artifact summaries
-- Dark mode
 - Local only, no network calls, no telemetry
 
 ## Requirements
