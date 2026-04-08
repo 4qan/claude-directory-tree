@@ -17,7 +17,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 3: Operations** - File copy/move/promote/demote, context menu, keyboard nav, and artifact summaries
 - [x] **Phase 3.1: Directory View Toggle & Plugin Enable/Disable** - Flat/hierarchy view toggle and plugin on/off from UI (completed 2026-03-30) (INSERTED)
 - [ ] **Phase 4: Plugin Distribution** - Claude Code plugin (/claude-tree command) and npm package for frictionless install
-- [ ] **Phase 5: Cross-Platform Windows Support** - Fix Unix path assumptions in scanner for full Windows compatibility
+- [x] **Phase 5: Cross-Platform Windows Support** - Fix Unix path assumptions in scanner for full Windows compatibility (completed 2026-04-08)
 
 ## Phase Details
 
@@ -132,4 +132,4 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 3.1 -> 4 -> 5
 | 3. Operations | 4/4 | Complete   | 2026-03-29 |
 | 3.1 View Toggle & Plugin Toggle | 2/2 | Complete | 2026-03-30 |
 | 4. Plugin Distribution | 1/2 | In Progress|  |
-| 5. Cross-Platform Windows Support | 2/2 | Complete | 2026-04-08 |
+| 5. Cross-Platform Windows Support | 2/2 | Complete   | 2026-04-08 |
