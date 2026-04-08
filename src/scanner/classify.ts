@@ -207,7 +207,7 @@ export async function classifyScope(
   //     Encoding: / and spaces become -
   if (scope === 'project') {
     const projectRoot = path.dirname(claudeDir);
-    const encoded = projectRoot.replace(/[/ ]/g, '-');
+    const encoded = projectRoot.replace(/[\/\\ :]/g, '-');
     const cacheMemoryDir = path.join(homedir(), '.claude', 'projects', encoded, 'memory');
     await walkArtifactDir(cacheMemoryDir, allFiles);
   }

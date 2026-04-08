@@ -2,11 +2,36 @@ import crypto from 'node:crypto';
 import path from 'node:path';
 import fs from 'node:fs/promises';
 import { homedir } from 'node:os';
+import os from 'node:os';
 import { findClaudeDirs } from './discover.js';
 import { classifyScope, isGlobalScope } from './classify.js';
 import type { ScanResponse, ScopeNode } from './types.js';
 
 const CONFIG_DIR = path.join(homedir(), '.claude-directory-tree');
+
+/**
+ * Decode a Claude Code project cache directory name back to its original filesystem path.
+ * On Unix, the encoding replaces `/` and spaces with `-` (e.g. `/Users/bob/proj` -> `-Users-bob-proj`).
+ * On Windows, backslashes and colons are also replaced (e.g. `C:\Users\bob\proj` -> `C--Users-bob-proj`).
+ */
+export function decodeProjectCacheName(encodedName: string): string {
+  if (os.platform() === 'win32') {
+    // Windows encoding: C:\Users\bob\proj -> C-Users-bob-proj (colon -> -, backslash -> -)
+    // Or double-hyphen variant: C--Users-bob (colon -> -, backslash -> -)
+    const driveLetter = encodedName[0].toUpperCase();
+    let rest: string;
+    if (encodedName[1] === '-' && encodedName[2] === '-') {
+      // Double-hyphen: C--Users-bob -> drive letter + skip "C--", replace remaining - with \
+      rest = encodedName.slice(3).replace(/-/g, '\\');
+    } else {
+      // Single-hyphen: C-Users-bob -> drive letter + skip "C-", replace remaining - with \
+      rest = encodedName.slice(2).replace(/-/g, '\\');
+    }
+    return `${driveLetter}:\\${rest}`;
+  }
+  // Unix: /Users/bob/proj -> -Users-bob-proj
+  return '/' + encodedName.slice(1).replace(/-/g, '/');
+}
 
 async function getHiddenScopes(): Promise<string[]> {
   try {
@@ -25,8 +50,8 @@ async function getHiddenScopes(): Promise<string[]> {
  * "Claude Directory Tree" that contain spaces.
  */
 async function resolveProjectPath(naivePath: string): Promise<string | null> {
-  const segments = naivePath.split('/').filter(Boolean);
-  let current = '/';
+  const segments = naivePath.split(path.sep).filter(Boolean);
+  let current = path.parse(naivePath).root || '/';
 
   for (let i = 0; i < segments.length; i++) {
     const candidate = path.join(current, segments[i]);
@@ -77,7 +102,7 @@ export async function runScan(targetDir: string): Promise<ScanResponse> {
 
     for (const entry of projectEntries) {
       if (!entry.isDirectory()) continue;
-      const naiveDecoded = '/' + entry.name.slice(1).replace(/-/g, '/');
+      const naiveDecoded = decodeProjectCacheName(entry.name);
       // Try the naive decode first (works for paths without spaces/dashes)
       const claudeDir = path.join(naiveDecoded, '.claude');
       try {
@@ -101,9 +126,10 @@ export async function runScan(targetDir: string): Promise<ScanResponse> {
       }
       // Still unresolved — add common parent directories for broad scan
       // Extract the first 3-4 segments as a likely parent directory
-      const segments = naiveDecoded.split('/').filter(Boolean);
+      const segments = naiveDecoded.split(path.sep).filter(Boolean);
+      const naiveDecodedRoot = path.parse(naiveDecoded).root || '/';
       for (let depth = 3; depth <= Math.min(5, segments.length - 1); depth++) {
-        const parent = '/' + segments.slice(0, depth).join('/');
+        const parent = path.join(naiveDecodedRoot, ...segments.slice(0, depth));
         try {
           await fs.access(parent);
           parentCandidates.add(parent);
