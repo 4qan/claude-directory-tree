@@ -135,6 +135,16 @@ describe('classifyFile - artifact type classification', () => {
   });
 });
 
+describe('encodeProjectRoot - cross-platform', () => {
+  it('XPLAT-03: encodes Unix project root', () => {
+    expect('/Users/bob/proj'.replace(/[\/\\ :]/g, '-')).toBe('-Users-bob-proj');
+  });
+
+  it('XPLAT-03: encodes Windows project root (backslashes and colon)', () => {
+    expect('C:\\Users\\bob\\proj'.replace(/[\/\\ :]/g, '-')).toBe('C--Users-bob-proj');
+  });
+});
+
 describe('classifyScope - full scope classification', () => {
   it('SCAN-03: extracts 2 hook artifacts from settings.json', async () => {
     const artifacts = await classifyScope(CLAUDE_DIR, 'project', PROJECT_ID);

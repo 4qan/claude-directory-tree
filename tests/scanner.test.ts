@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { resolve } from 'node:path';
 import { findClaudeDirs } from '../src/scanner/discover.js';
-import { runScan } from '../src/scanner/index.js';
+import { runScan, decodeProjectCacheName } from '../src/scanner/index.js';
 import { ScanResponseSchema } from '../src/scanner/types.js';
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -72,6 +72,32 @@ describe('findClaudeDirs', () => {
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true });
     }
+  });
+});
+
+describe('decodeProjectCacheName', () => {
+  it('XPLAT-01: decodes Unix-encoded path', () => {
+    vi.spyOn(os, 'platform').mockReturnValue('darwin');
+    expect(decodeProjectCacheName('-Users-bob-proj')).toBe('/Users/bob/proj');
+    vi.restoreAllMocks();
+  });
+
+  it('XPLAT-01: decodes Windows single-hyphen encoded path', () => {
+    vi.spyOn(os, 'platform').mockReturnValue('win32');
+    expect(decodeProjectCacheName('C-Users-bob-proj')).toBe('C:\\Users\\bob\\proj');
+    vi.restoreAllMocks();
+  });
+
+  it('XPLAT-01: decodes Windows double-hyphen encoded path', () => {
+    vi.spyOn(os, 'platform').mockReturnValue('win32');
+    expect(decodeProjectCacheName('C--Users-bob-proj')).toBe('C:\\Users\\bob\\proj');
+    vi.restoreAllMocks();
+  });
+
+  it('XPLAT-01: decodes Unix path without mock (default platform)', () => {
+    // On any CI platform, a leading-hyphen name should give a Unix-style path
+    const result = decodeProjectCacheName('-Users-bob-proj');
+    expect(result).toBe('/Users/bob/proj');
   });
 });
 
