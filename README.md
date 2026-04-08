@@ -14,6 +14,8 @@ Visual explorer for all your Claude Code artifacts across projects and scopes.
 
 All projects you've used with Claude Code are auto-discovered. No manual setup needed.
 
+Works on macOS, Linux, and Windows.
+
 ## Install
 
 ### As a Claude Code Plugin
@@ -47,8 +49,11 @@ claude-directory-tree
 # Launch from current directory
 npx claude-directory-tree
 
-# Launch from a specific directory
+# Launch from a specific directory (macOS/Linux)
 npx claude-directory-tree /path/to/projects
+
+# Launch from a specific directory (Windows)
+npx claude-directory-tree C:\Users\you\projects
 ```
 
 ## Features
@@ -98,6 +103,7 @@ Enable or disable plugins directly from the context menu or detail panel.
 
 - Node.js >= 20.17.0
 - Claude Code >= 1.0.33 (for plugin install)
+- macOS, Linux, or Windows
 
 ## Development
 
