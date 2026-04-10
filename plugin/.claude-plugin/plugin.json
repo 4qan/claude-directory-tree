@@ -1,6 +1,6 @@
 {
   "name": "claude-tree",
-  "version": "0.1.0",
+  "version": "0.1.4",
   "description": "Visual explorer for all Claude Code artifacts across projects and scopes",
   "author": {
     "name": "Furqan Tariq",

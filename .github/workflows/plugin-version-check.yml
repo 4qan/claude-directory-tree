@@ -1,0 +1,90 @@
+name: Plugin version lockstep
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check-versions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify version lockstep and bump-on-change
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          # Read current versions at HEAD
+          PLUGIN_VERSION=$(jq -r '.version' plugin/.claude-plugin/plugin.json)
+          MARKETPLACE_VERSION=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+          PACKAGE_VERSION=$(jq -r '.version' package.json)
+
+          echo "Current versions:"
+          echo "  plugin/.claude-plugin/plugin.json : $PLUGIN_VERSION"
+          echo "  .claude-plugin/marketplace.json   : $MARKETPLACE_VERSION"
+          echo "  package.json                      : $PACKAGE_VERSION"
+          echo ""
+
+          # Rule 1: all three versions must match (lockstep)
+          if [ "$PLUGIN_VERSION" != "$MARKETPLACE_VERSION" ] || [ "$PLUGIN_VERSION" != "$PACKAGE_VERSION" ]; then
+            echo "::error::Version lockstep violated. All three files must declare the same version."
+            echo "  plugin/.claude-plugin/plugin.json = $PLUGIN_VERSION"
+            echo "  .claude-plugin/marketplace.json   = $MARKETPLACE_VERSION"
+            echo "  package.json                      = $PACKAGE_VERSION"
+            exit 1
+          fi
+
+          # Determine base ref for diffing
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git fetch origin "${{ github.base_ref }}" --depth=1
+            BASE_REF="origin/${{ github.base_ref }}"
+          else
+            if git rev-parse HEAD^ >/dev/null 2>&1; then
+              BASE_REF="HEAD^"
+            else
+              echo "First commit on branch, skipping bump check"
+              exit 0
+            fi
+          fi
+
+          # Rule 2: if any distributable file changed, version must have bumped
+          CHANGED_FILES=$(git diff --name-only "$BASE_REF" HEAD || true)
+          echo "Changed files since $BASE_REF:"
+          echo "$CHANGED_FILES" | sed 's/^/  /'
+          echo ""
+
+          if echo "$CHANGED_FILES" | grep -qE '^(plugin/|src/|\.claude-plugin/marketplace\.json$|package\.json$)'; then
+            BASE_VERSION=$(git show "$BASE_REF:plugin/.claude-plugin/plugin.json" 2>/dev/null | jq -r '.version' 2>/dev/null || echo "")
+
+            if [ -z "$BASE_VERSION" ] || [ "$BASE_VERSION" = "null" ]; then
+              echo "Could not read base version from $BASE_REF (first introduction of plugin manifest?). Allowing."
+              exit 0
+            fi
+
+            # New version must be strictly greater than base (semver via sort -V)
+            GREATER=$(printf '%s\n%s\n' "$BASE_VERSION" "$PLUGIN_VERSION" | sort -V | tail -n1)
+            if [ "$PLUGIN_VERSION" = "$BASE_VERSION" ] || [ "$GREATER" != "$PLUGIN_VERSION" ]; then
+              echo "::error::Distributable files changed but version was not bumped (or is not strictly greater than base)."
+              echo ""
+              echo "  Base version (${BASE_REF}): $BASE_VERSION"
+              echo "  HEAD version              : $PLUGIN_VERSION"
+              echo ""
+              echo "Fix: bump all three files to a value strictly greater than $BASE_VERSION."
+              echo "  - plugin/.claude-plugin/plugin.json  (.version)"
+              echo "  - .claude-plugin/marketplace.json    (.plugins[0].version)"
+              echo "  - package.json                       (.version)"
+              exit 1
+            fi
+
+            echo "Version bumped from $BASE_VERSION to $PLUGIN_VERSION"
+          else
+            echo "No distributable files changed, version bump not required"
+          fi
+
+          echo ""
+          echo "Version check passed"

@@ -8,7 +8,7 @@
       "name": "claude-tree",
       "source": "./plugin",
       "description": "Visual explorer for all Claude Code artifacts across projects and scopes",
-      "version": "0.1.0",
+      "version": "0.1.4",
       "homepage": "https://github.com/4qan/claude-directory-tree"
     }
   ]
