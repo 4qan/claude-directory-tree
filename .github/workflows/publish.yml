@@ -1,0 +1,91 @@
+name: Publish to npm
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run npm publish with --dry-run (no actual publish)'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # Required for npm provenance
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'npm'
+
+      - name: Verify tag matches all three manifest versions
+        if: github.event_name == 'push'
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          PKG_VERSION=$(jq -r '.version' package.json)
+          PLUGIN_VERSION=$(jq -r '.version' plugin/.claude-plugin/plugin.json)
+          MARKETPLACE_VERSION=$(jq -r '.plugins[0].version' .claude-plugin/marketplace.json)
+
+          echo "Tag version:              $TAG_VERSION"
+          echo "package.json:             $PKG_VERSION"
+          echo "plugin.json:              $PLUGIN_VERSION"
+          echo "marketplace.json:         $MARKETPLACE_VERSION"
+          echo ""
+
+          if [ "$TAG_VERSION" != "$PKG_VERSION" ]; then
+            echo "::error::Tag version ($TAG_VERSION) does not match package.json version ($PKG_VERSION)."
+            echo "Fix: either retag with the correct version, or bump package.json to match the tag."
+            exit 1
+          fi
+
+          if [ "$PKG_VERSION" != "$PLUGIN_VERSION" ] || [ "$PKG_VERSION" != "$MARKETPLACE_VERSION" ]; then
+            echo "::error::Version lockstep violated. All three manifests must declare the same version as the tag."
+            exit 1
+          fi
+
+          echo "Version check passed: all four sources agree on $TAG_VERSION"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Publish to npm
+        run: |
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            npm publish --dry-run --provenance --access public
+          else
+            npm publish --provenance --access public
+          fi
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Summary
+        if: success()
+        run: |
+          VERSION=$(jq -r '.version' package.json)
+          if [ "${{ github.event.inputs.dry_run }}" = "true" ]; then
+            echo "### Dry run successful" >> $GITHUB_STEP_SUMMARY
+            echo "Would have published: \`claude-directory-tree@$VERSION\`" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### Published" >> $GITHUB_STEP_SUMMARY
+            echo "\`claude-directory-tree@$VERSION\` is now live on npm." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Install: \`npx claude-directory-tree@$VERSION\`" >> $GITHUB_STEP_SUMMARY
+          fi
